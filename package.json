@@ -21,7 +21,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "preinstall": "node ./engine-requirements.js"
+    "preinstall": "node ./engine-requirements.js",
+    "test": "node --test tests/*.test.js",
+    "test:stone": "node --test tests/*.test.js"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",

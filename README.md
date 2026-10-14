@@ -1,36 +1,48 @@
 # Stone WPP
 
-**Stone WPP** é uma biblioteca de conexão com WhatsApp, distribuída como `@stone-wpp/ofc`.
+Biblioteca de conexão com WhatsApp. Pacote **`@stone-wpp/ofc`**, versão **1.0.0**.
 
-**Versão:** `1.0.0`
+> Biblioteca em desenvolvimento, sem publicação no registro npm. Os módulos novos possuem testes unitários; a conexão com o serviço precisa de validação real.
 
-## Instalação
+## Instalação por GitHub
 
 ```bash
-npm install @stone-wpp/ofc
+npm install github:dylan-Modz/stone-wpp-ofc#main
 ```
 
-> O comando acima depende da publicação do pacote no npm. Enquanto isso, é possível instalar diretamente pelo GitHub:
->
-> `npm install github:dylan-Modz/stone-wpp-ofc#main`
-
-## Utilização (ESM)
+## Exemplo de uso
 
 ```js
-import makeWASocket, { useMultiFileAuthState } from '@stone-wpp/ofc'
+import createStone, { useMultiFileAuthState } from '@stone-wpp/ofc'
 
-const { state, saveCreds } = await useMultiFileAuthState('./session')
-const sock = makeWASocket({ auth: state })
-sock.ev.on('creds.update', saveCreds)
+const { state, saveCreds } = await useMultiFileAuthState('./sessao')
+const socket = createStone({ auth: state })
+socket.ev.on('creds.update', saveCreds)
+
+const dados = await socket.stone.canais.informacoes('0@newsletter')
+console.log(dados)
 ```
 
-## Requisitos
+## Organização
 
-- Node.js 20 ou superior
-- As mesmas dependências e funcionalidades da base utilizada para esta distribuição
+- `lib/Socket/`: conexão e mensagens existentes
+- `lib/Recursos/`: canais, grupos, bots, listas e chamadas
+- `lib/Store/`: dados em memória, JSON e SQLite opcional
+- `lib/Plugins/`: extensões com limpeza de recursos
+- `tests/`: testes automatizados
+- `docs/`: guias e limites das funcionalidades
 
-## Licença e créditos
+Veja [documentação](./docs/instalacao.md) e [referência dos recursos](./docs/recursos.md).
 
-MIT. Este projeto preserva o código, a licença e os avisos de copyright dos autores anteriores. Veja [LICENSE](./LICENSE) e [README-UPSTREAM.md](./README-UPSTREAM.md) para a documentação histórica da base.
+## Desenvolvimento
 
-Este projeto não é afiliado ao WhatsApp.
+```bash
+npm install
+npm test
+```
+
+A interface antiga de mensagens e grupos continua disponível para compatibilidade. Os novos recursos são acessados pelo namespace `socket.stone`.
+
+## Licença
+
+MIT. Os direitos autorais e os avisos legais das contribuições anteriores permanecem preservados em [LICENSE](./LICENSE). Projeto independente, sem afiliação com o WhatsApp.
