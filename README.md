@@ -2,7 +2,7 @@
 
 Biblioteca de conexão com WhatsApp. Pacote **`@stone-wpp/ofc`**, versão **1.0.0**.
 
-> Biblioteca em desenvolvimento, sem publicação no registro npm. Os módulos novos possuem testes unitários; a conexão com o serviço precisa de validação real.
+> Biblioteca em desenvolvimento e ainda não publicada no npm. A conexão real com o WhatsApp precisa de validação antes do uso em produção.
 
 ## Instalação por GitHub
 
@@ -29,16 +29,11 @@ console.log(dados)
 - `lib/Recursos/`: canais, grupos, bots, listas e chamadas
 - `lib/Store/`: dados em memória, JSON e SQLite opcional
 - `lib/Plugins/`: extensões com limpeza de recursos
-- `tests/`: testes automatizados
-- `docs/`: guias e limites das funcionalidades
-
-Veja [documentação](./docs/instalacao.md) e [referência dos recursos](./docs/recursos.md).
 
 ## Desenvolvimento
 
 ```bash
 npm install
-npm test
 ```
 
 A interface antiga de mensagens e grupos continua disponível para compatibilidade. Os novos recursos são acessados pelo namespace `socket.stone`.
