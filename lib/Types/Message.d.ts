@@ -157,7 +157,7 @@ export type ButtonReplyInfo = {
     id: string;
     index: number;
 };
-export type ButtonV2Item = {
+export type InteractiveButtonItem = {
     name?: string;
     type?: string;
     buttonParamsJson?: string | Record<string, unknown>;
@@ -181,7 +181,7 @@ export type ButtonV2Item = {
     numero?: string;
     sections?: unknown[];
 };
-export type ButtonV2Options = {
+export type InteractiveButtonOptions = {
     text?: string;
     caption?: string;
     title?: string;
@@ -197,19 +197,35 @@ export type ButtonV2Options = {
     jpegThumbnail?: string;
     width?: number;
     height?: number;
-    buttons?: ButtonV2Item[];
-    interactiveButtons?: ButtonV2Item[];
+    buttons?: InteractiveButtonItem[];
+    interactiveButtons?: InteractiveButtonItem[];
     messageParamsJson?: string;
     contextInfo?: proto.IContextInfo;
     mentions?: string[];
     mentionAll?: boolean;
 };
-export type ButtonV2MessageContent = ButtonV2Options & {
-    buttonV2: true | ButtonV2Options;
-    buttonsV2?: never;
-} | ButtonV2Options & {
-    buttonsV2: true | ButtonV2Options;
-    buttonV2?: never;
+export type InteractiveMessageContent = InteractiveButtonOptions & {
+    interactive: true | InteractiveButtonOptions;
+};
+/** Direct format for classic buttons, including location thumbnail. */
+export type ButtonsMessageInput = Omit<proto.Message.IButtonsMessage, 'buttons'> & {
+    buttons?: Array<proto.Message.ButtonsMessage.IButton | {
+        id?: string;
+        text?: string;
+        displayText?: string;
+        buttonId?: string;
+        buttonText?: { displayText?: string };
+        type?: number;
+    }>;
+    image?: Buffer | Uint8Array;
+    title?: string;
+    subtitle?: string;
+};
+export type ButtonsMessageContent = {
+    buttonsMessage: ButtonsMessageInput;
+    mentions?: string[];
+    mentionAll?: boolean;
+    viewOnce?: boolean;
 };
 export type GroupInviteInfo = {
     inviteCode: string;
@@ -221,7 +237,7 @@ export type GroupInviteInfo = {
 export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
     productImage: WAMediaUpload;
 };
-export type AnyRegularMessageContent = ButtonV2MessageContent | (({
+export type AnyRegularMessageContent = ButtonsMessageContent | InteractiveMessageContent | (({
     text: string;
     linkPreview?: WAUrlInfo | null;
 } & Mentionable & Contextable & Editable) | AnyMediaMessageContent | {
