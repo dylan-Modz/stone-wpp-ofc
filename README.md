@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.herokuapp.com/?font=monospace&size=30&duration=2500&color=22C55E&center=true&vCenter=true&width=720&lines=STONE+WPP+%F0%9F%AA%A8;CRIADO+POR+DYLAN+MODZ;BIBLIOTECA+PARA+WHATSAPP;STONE+WPP+V1.0.0" alt="Stone WPP">
+<img src="https://readme-typing-svg.herokuapp.com/?font=monospace&size=30&duration=2500&color=00BFFF&center=true&vCenter=true&width=720&lines=STONE+WPP+%F0%9F%AA%A8;CRIADO+POR+DYLAN+MODZ;BIBLIOTECA+PARA+WHATSAPP;STONE+WPP+V1.0.0" alt="Stone WPP">
 
 <!-- 🪨 LOGO DA STONE WPP
 Quando a arte estiver pronta, coloque o link da imagem no atributo src
@@ -14,12 +14,12 @@ Depois, remova a linha 'LOGO DA STONE WPP EM BREVE' abaixo.
 <p align="center"><b>🪨 LOGO DA STONE WPP EM BREVE</b></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/STONE%20WPP-EM%20DESENVOLVIMENTO-22C55E?style=for-the-badge&labelColor=111111" alt="Stone WPP em desenvolvimento">
+  <img src="https://img.shields.io/badge/STONE%20WPP-EM%20DESENVOLVIMENTO-00BFFF?style=for-the-badge&labelColor=111111" alt="Stone WPP em desenvolvimento">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Autor-Dylan%20Modz-22C55E?style=for-the-badge&logo=github&logoColor=white&labelColor=111111" alt="Autor">
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-1.0.0-22C55E?style=for-the-badge&logo=node.js&logoColor=white&labelColor=111111" alt="Versão">
+  <img src="https://img.shields.io/badge/Autor-Dylan%20Modz-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111111" alt="Autor">
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-1.0.0-00BFFF?style=for-the-badge&logo=node.js&logoColor=white&labelColor=111111" alt="Versão">
 </p>
 
 <p align="center">
@@ -27,9 +27,9 @@ Depois, remova a linha 'LOGO DA STONE WPP EM BREVE' abaixo.
     <img src="https://img.shields.io/badge/GITHUB-111111?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
   </a>
   <a href="https://github.com/dylan-Modz/stone-wpp-ofc/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/LICENSE-MIT-22C55E?style=for-the-badge&logoColor=white" alt="Licença MIT">
+    <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&logoColor=white" alt="Licença MIT">
   </a>
-  <img src="https://img.shields.io/badge/NODE.JS-20%2B-111111?style=for-the-badge&logo=node.js&logoColor=22C55E" alt="Node.js 20+">
+  <img src="https://img.shields.io/badge/NODE.JS-20%2B-111111?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20+">
 </p>
 
 </div>
@@ -238,8 +238,8 @@ A **Stone WPP** é um projeto independente, voltado à evolução de uma bibliot
 
 <p>
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
-  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/STONE%20WPP-22C55E?style=flat-square&logo=whatsapp&logoColor=white" alt="Stone WPP">
+  <img src="https://img.shields.io/badge/Node.js-00BFFF?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/STONE%20WPP-00BFFF?style=flat-square&logo=whatsapp&logoColor=white" alt="Stone WPP">
 </p>
 
 </td>
