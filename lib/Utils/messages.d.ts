@@ -1,6 +1,6 @@
 import { type Transform } from 'stream';
 import { proto } from '../../WAProto/index.js';
-import type { AnyMediaMessageContent, AnyMessageContent, MessageContentGenerationOptions, MessageGenerationOptions, MessageGenerationOptionsFromContent, MessageUserReceipt, WAMessage, WAMessageContent, WAMessageKey } from '../Types/index.js';
+import type { AnyMediaMessageContent, AnyMessageContent, ButtonsMessageInput, MessageContentGenerationOptions, MessageGenerationOptions, MessageGenerationOptionsFromContent, MessageUserReceipt, MiscMessageGenerationOptions, WAMessage, WAMessageContent, WAMessageKey } from '../Types/index.js';
 import type { ILogger } from './logger.js';
 import { type MediaDownloadOptions } from './messages-media.js';
 type ExtractByKey<T, K extends PropertyKey> = T extends Record<K, any> ? T : never;
@@ -20,6 +20,13 @@ export declare const prepareDisappearingMessageSettingContent: (ephemeralExpirat
  */
 export declare const generateForwardMessageContent: (message: WAMessage, forceForward?: boolean) => proto.IMessage;
 export declare const hasNonNullishProperty: <K extends PropertyKey>(message: AnyMessageContent, key: K) => message is ExtractByKey<AnyMessageContent, K>;
+export declare const normalizeButtonsMessage: (message: ButtonsMessageInput) => ButtonsMessageInput;
+export declare const sendInteractiveMessage: (
+    client: { sendMessage: (jid: string, content: AnyMessageContent, options?: MiscMessageGenerationOptions) => Promise<WAMessage | undefined> },
+    jid: string,
+    content: AnyMessageContent,
+    options?: MiscMessageGenerationOptions & { quote?: WAMessage; mentions?: string[] }
+) => Promise<WAMessage | undefined>;
 export declare const generateWAMessageContent: (message: AnyMessageContent, options: MessageContentGenerationOptions) => Promise<proto.Message>;
 export declare const generateWAMessageFromContent: (jid: string, message: WAMessageContent, options: MessageGenerationOptionsFromContent) => WAMessage;
 export declare const generateWAMessage: (jid: string, content: AnyMessageContent, options: MessageGenerationOptions) => Promise<WAMessage>;
