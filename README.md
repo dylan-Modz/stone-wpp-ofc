@@ -2,16 +2,9 @@
 
 <img src="https://readme-typing-svg.herokuapp.com/?font=monospace&size=30&duration=2500&color=00BFFF&center=true&vCenter=true&width=720&lines=STONE+WPP+%F0%9F%AA%A8;CRIADO+POR+DYLAN+MODZ;BIBLIOTECA+PARA+WHATSAPP;STONE+WPP+V1.0.0" alt="Stone WPP">
 
-<!-- 🪨 LOGO DA STONE WPP
-Quando a arte estiver pronta, coloque o link da imagem no atributo src
-e retire os marcadores de comentário desta imagem:
-
-<img src="COLE_AQUI_O_LINK_DA_LOGO" alt="STONE WPP" width="720">
-
-Depois, remova a linha 'LOGO DA STONE WPP EM BREVE' abaixo.
--->
-
-<p align="center"><b>🪨 LOGO DA STONE WPP EM BREVE</b></p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg" alt="Stone WPP — Banner" width="720">
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/STONE%20WPP-EM%20DESENVOLVIMENTO-00BFFF?style=for-the-badge&labelColor=111111" alt="Stone WPP em desenvolvimento">
@@ -39,9 +32,9 @@ Depois, remova a linha 'LOGO DA STONE WPP EM BREVE' abaixo.
 ## 🪨 ATENÇÃO
 
 > [!IMPORTANT]
-> A **Stone WPP** é uma biblioteca para projetos que utilizam conexão com WhatsApp. Ela **não é um bot pronto** e **ainda não foi publicada no npm**.
+> A **Stone WPP** é uma biblioteca para projetos que utilizam conexão com WhatsApp. Ela **não é um bot pronto**.
 >
-> Nesta fase de desenvolvimento, a instalação é feita diretamente pelo GitHub. A conexão real deve ser validada antes de utilizar em produção.
+> A instalação pode ser feita diretamente pelo GitHub. A conexão real deve ser validada antes de utilizar em produção.
 
 <details>
 <summary><b>🪨 Ler mais...</b></summary>
