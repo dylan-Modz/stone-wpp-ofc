@@ -3,7 +3,7 @@
 <img src="https://readme-typing-svg.herokuapp.com/?font=monospace&size=30&duration=2500&color=00BFFF&center=true&vCenter=true&width=720&lines=STONE+WPP+%F0%9F%AA%A8;CRIADO+POR+DYLAN+MODZ;BIBLIOTECA+PARA+WHATSAPP;STONE+WPP+V1.0.0" alt="Stone WPP">
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg" alt="Stone WPP — Banner" width="720">
+  <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/7rvb7o.jpg" alt="Stone WPP — Banner" width="720">
 </p>
 
 <p align="center">
