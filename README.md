@@ -32,8 +32,10 @@ console.log(dados)
 
 ## Requisitos
 
-- **Node.js 24 ou superior**, para utilizar os módulos da Stone, incluindo o SQLite nativo opcional.
-- O SQLite nativo não precisa ser instalado como dependência adicional.
+- **Stone WPP normal:** Node.js **20 ou superior**; não exige SQLite.
+- **Store de memória e JSON:** disponíveis normalmente no Node.js 20+.
+- **SQLite nativo opcional:** Node.js **22.13+** ou **24+** (em Node.js 22.5–22.12, somente com `--experimental-sqlite`).
+- Quem não utilizar SQLite não precisa atualizar para Node.js 24 nem instalar dependências adicionais.
 
 ## Desenvolvimento
 
