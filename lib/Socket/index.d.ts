@@ -259,4 +259,3 @@ declare const makeWASocket: (config: UserFacingSocketConfig & {stone?: StoneOpti
     fetchNewChatMessageCap: () => Promise<import("../index.js").NewChatMessageCapInfo>;
 } & {readonly stone: StoneFeatures};
 export default makeWASocket;
-//# sourceMappingURL=index.d.ts.map
