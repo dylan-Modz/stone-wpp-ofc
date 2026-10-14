@@ -30,6 +30,11 @@ console.log(dados)
 - `lib/Store/`: dados em memória, JSON e SQLite opcional
 - `lib/Plugins/`: extensões com limpeza de recursos
 
+## Requisitos
+
+- **Node.js 24 ou superior**, para utilizar os módulos da Stone, incluindo o SQLite nativo opcional.
+- O SQLite nativo não precisa ser instalado como dependência adicional.
+
 ## Desenvolvimento
 
 ```bash

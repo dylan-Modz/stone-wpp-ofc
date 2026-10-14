@@ -1,10 +1,10 @@
-const major = parseInt(process.versions.node.split('.')[0], 10);
+const major = Number.parseInt(process.versions.node.split('.')[0], 10);
 
-if (major < 20) {
+if (!Number.isFinite(major) || major < 24) {
   console.error(
-    `\n❌ This package requires Node.js 20+ to run reliably.\n` +
-    `   You are using Node.js ${process.versions.node}.\n` +
-    `   Please upgrade to Node.js 20+ to proceed.\n`
+    `\n[ STONE ] Node.js 24 ou superior é necessário.\n` +
+    `[ STONE ] Versão atual: ${process.versions.node}\n` +
+    `[ STONE ] Atualize o Node.js antes de instalar a biblioteca.\n`
   );
   process.exit(1);
 }
