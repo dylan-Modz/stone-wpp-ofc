@@ -1,14 +1,21 @@
 {
   "name": "@stone-wpp/ofc",
   "type": "module",
-  "version": "1.0.0",
-  "description": "Stone WPP - Biblioteca de conexão com WhatsApp",
+  "version": "1.0.1",
+  "description": "Stone WPP — biblioteca modular para WhatsApp em Node.js: conexão, mensagens, grupos, canais, stores e plugins",
   "keywords": [
     "stone-wpp",
     "whatsapp",
+    "whatsapp-web",
+    "nodejs",
+    "socket",
+    "messages",
+    "groups",
+    "channels",
+    "plugins",
     "automation"
   ],
-  "homepage": "https://github.com/dylan-Modz/stone-wpp-ofc",
+  "homepage": "https://stone-wpp.vercel.app/",
   "license": "MIT",
   "author": "Dylan Modz",
   "main": "lib/index.js",
@@ -86,5 +93,12 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "private": false
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dylan-Modz/stone-wpp-ofc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dylan-Modz/stone-wpp-ofc/issues"
+  }
 }
