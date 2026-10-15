@@ -1,116 +1,74 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.herokuapp.com/?font=monospace&size=30&duration=2500&color=00BFFF&center=true&vCenter=true&width=720&lines=STONE+WPP+%F0%9F%AA%A8;CRIADO+POR+DYLAN+MODZ;BIBLIOTECA+PARA+WHATSAPP;STONE+WPP+V1.0.0" alt="Stone WPP">
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=32&pause=1100&color=00BFFF&center=true&vCenter=true&width=700&lines=STONE+WPP+%F0%9F%AA%A8;DOCUMENTA%C3%87%C3%83O+OFICIAL;CRIADO+POR+DYLAN+MODZ" alt="Stone WPP — Documentação Oficial" />
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg" alt="Stone WPP — Banner" width="720">
-</p>
+<br>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/STONE%20WPP-EM%20DESENVOLVIMENTO-00BFFF?style=for-the-badge&labelColor=111111" alt="Stone WPP em desenvolvimento">
-</p>
+<a href="https://stone-wpp.vercel.app/">
+  <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg" alt="Stone WPP — Banner Oficial" width="800" />
+</a>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Autor-Dylan%20Modz-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111111" alt="Autor">
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-1.0.0-00BFFF?style=for-the-badge&logo=node.js&logoColor=white&labelColor=111111" alt="Versão">
-</p>
+<br><br>
 
-<p align="center">
-  <a href="https://github.com/dylan-Modz/stone-wpp-ofc">
-    <img src="https://img.shields.io/badge/GITHUB-111111?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
-  </a>
-  <a href="https://github.com/dylan-Modz/stone-wpp-ofc/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&logoColor=white" alt="Licença MIT">
-  </a>
-  <img src="https://img.shields.io/badge/NODE.JS-20%2B-111111?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20+">
-</p>
+**Uma biblioteca modular para criar aplicações conectadas ao WhatsApp com Node.js.**
+
+*Conexão • Autenticação • Mensagens • Grupos • Canais • Plugins*
+
+<br>
+
+<a href="https://www.npmjs.com/package/@stone-wpp/ofc">
+  <img src="https://img.shields.io/npm/v/%40stone-wpp%2Fofc?style=for-the-badge&logo=npm&logoColor=white&label=NPM&color=00BFFF&labelColor=101820" alt="Versão no npm" />
+</a>
+<img src="https://img.shields.io/badge/NODE.JS-20%2B-101820?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20+" />
+<img src="https://img.shields.io/badge/LICEN%C3%87A-MIT-00BFFF?style=for-the-badge&labelColor=101820" alt="Licença MIT" />
+
+<br>
+
+<img src="https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-00BFFF?style=flat-square&labelColor=101820" alt="Em desenvolvimento" />
+<img src="https://img.shields.io/badge/ESM-SUPORTADO-00BFFF?style=flat-square&labelColor=101820" alt="ES Modules" />
+<img src="https://img.shields.io/badge/CRIADOR-DYLAN%20MODZ-00BFFF?style=flat-square&labelColor=101820" alt="Dylan Modz" />
+
+<br><br>
+
+<a href="https://www.npmjs.com/package/@stone-wpp/ofc">
+  <img src="https://img.shields.io/badge/📦%20NPM-INSTALAR%20PACOTE-00BFFF?style=for-the-badge&labelColor=101820" alt="Instalar pelo npm" />
+</a>
+<a href="https://stone-wpp.vercel.app/">
+  <img src="https://img.shields.io/badge/📖%20DOCS-VER%20DOCUMENTA%C3%87%C3%83O-101820?style=for-the-badge&labelColor=00BFFF" alt="Documentação" />
+</a>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc">
+  <img src="https://img.shields.io/badge/GITHUB-C%C3%93DIGO%20FONTE-101820?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+</a>
 
 </div>
 
 ---
 
-## 🪨 ATENÇÃO
+## 🪨 INSTALAÇÃO
 
-> [!IMPORTANT]
-> A **Stone WPP** é uma biblioteca para projetos que utilizam conexão com WhatsApp. Ela **não é um bot pronto**.
->
-> A instalação pode ser feita diretamente pelo GitHub. A conexão real deve ser validada antes de utilizar em produção.
+A **Stone WPP** está disponível no registro público do npm sob o nome **`@stone-wpp/ofc`**.
 
-<details>
-<summary><b>🪨 Ler mais...</b></summary>
+```bash
+npm install @stone-wpp/ofc
+```
 
-A Stone oferece uma interface de conexão e módulos complementares organizados em pastas, permitindo que cada aplicação monte seus próprios recursos.
+Outros gerenciadores de pacotes:
 
-As funções adicionais de canais, grupos e armazenamento possuem limites documentados nesta página. Nenhuma chave de API é exigida pela instalação básica.
+```bash
+pnpm add @stone-wpp/ofc
+# ou
+yarn add @stone-wpp/ofc
+```
 
-</details>
+> **Importante:** a Stone WPP é uma **biblioteca**, não um bot pronto. A inicialização e a configuração são feitas pela aplicação que a utiliza. Node.js **20 ou superior** é necessário.
+
+**Links úteis:** [NPM](https://www.npmjs.com/package/@stone-wpp/ofc) · [Documentação online](https://stone-wpp.vercel.app/) · [Repositório](https://github.com/dylan-Modz/stone-wpp-ofc)
 
 ---
 
-<details>
-<summary><b>🪨 INSTALAÇÃO POR GITHUB</b></summary>
+## ⚡ PRIMEIROS PASSOS
 
-Para adicionar a **Stone WPP** ao seu projeto:
-
-```bash
-npm install github:dylan-Modz/stone-wpp-ofc#main
-```
-
-Se preferir baixar o repositório para desenvolver a biblioteca:
-
-```bash
-git clone https://github.com/dylan-Modz/stone-wpp-ofc.git
-cd stone-wpp-ofc
-npm install
-```
-
-> A biblioteca não possui comando próprio `npm start`. A inicialização é feita pelo projeto que utiliza a Stone.
-
-</details>
-
----
-
-<details>
-<summary><b>🪨 INSTALAÇÃO PELO TERMUX</b></summary>
-
-Atualize os pacotes e instale Node.js e Git:
-
-```bash
-pkg update -y && pkg upgrade -y
-pkg install nodejs-lts git -y
-```
-
-Dentro da pasta do **seu bot ou aplicação**:
-
-```bash
-npm install github:dylan-Modz/stone-wpp-ofc#main
-```
-
-Se o projeto estiver no armazenamento compartilhado do Android, algumas instalações podem exigir `--no-bin-links`. Sempre que possível, instale as dependências na pasta privada do Termux.
-
-> [!CAUTION]
-> A instalação e a conexão podem variar de acordo com o aparelho, a versão do Node.js e o ambiente. Algumas dependências podem precisar de suporte nativo no Android.
-
-</details>
-
----
-
-<details>
-<summary><b>🪨 VPS / LINUX</b></summary>
-
-Utilize Node.js 20 ou superior no seu projeto e execute:
-
-```bash
-npm install github:dylan-Modz/stone-wpp-ofc#main
-```
-
-Para editar o código da biblioteca, clone o repositório e instale as dependências com `npm install`.
-
-</details>
-
----
-
-## 🪨 EXEMPLO DE CONEXÃO
+### 01 — Criar a conexão
 
 ```js
 import createStone, { useMultiFileAuthState } from '@stone-wpp/ofc'
@@ -125,7 +83,7 @@ stone.ev.on('connection.update', ({ connection }) => {
 })
 ```
 
-Para utilizar os recursos adicionais:
+### 02 — Acessar recursos adicionais
 
 ```js
 const canais = stone.stone.canais
@@ -133,44 +91,85 @@ const grupos = stone.stone.grupos
 const plugins = stone.stone.plugins
 ```
 
-> Proteja os arquivos de autenticação. Não publique sessões ou credenciais no GitHub.
+> Guarde os arquivos de autenticação com segurança. Nunca publique sessões, chaves ou credenciais em repositórios.
+
+Para guias completos, parâmetros e exemplos, visite a **[documentação oficial](https://stone-wpp.vercel.app/)**.
 
 ---
 
-## 🪨 REQUISITOS
+## 🧩 MÓDULOS DA STONE
 
-| Componente | Requisito |
+| Sistema | Recursos |
 | :--- | :--- |
-| Node.js | **20 ou superior** para a biblioteca normal |
-| SQLite nativo (opcional) | **22.13+** ou **24+**; versões 22.5–22.12 exigem sinalizador experimental |
-| Git | Para clonar o repositório |
-| Internet | Conexão necessária para utilizar o serviço |
-| npm | Para instalar as dependências |
+| 🔌 **Socket** | Conexão, autenticação, envio e recebimento de mensagens e eventos. |
+| 👥 **Grupos** | Gerenciamento de membros, permissões e solicitações. |
+| 🏘️ **Comunidades** | Operações com comunidades e grupos vinculados. |
+| 📢 **Canais** | Informações, mensagens, reações e métricas locais. |
+| 🤖 **Bots** | Integrações baseadas nos eventos disponíveis. |
+| 📃 **Listas** | Envio individual para contatos com consentimento. |
+| 📞 **Chamadas** | Links de áudio/vídeo e rejeição, quando disponível. |
+| 💾 **Store** | Dados em memória, JSON e SQLite opcional. |
+| 🧩 **Plugins** | Registro, organização e remoção de extensões. |
 
-Quem não utiliza SQLite pode continuar usando a Stone no Node.js 20+, sem instalar um banco de dados adicional.
+**Estado do projeto:** a Stone continua em desenvolvimento. Busca remota avançada de canais, listas de transmissão nativas, compartilhamento de histórico antigo com novos membros, chamadas com mídia em tempo real e conexão móvel primária **ainda não estão implementados**.
 
 ---
 
-## 🪨 SISTEMAS
+## 📱 TERMUX / ANDROID
 
-| Sistema | Função |
+Atualize os pacotes e instale Node.js e Git:
+
+```bash
+pkg update -y && pkg upgrade -y
+pkg install nodejs-lts git -y
+```
+
+Dentro da pasta do seu bot ou aplicação:
+
+```bash
+npm install @stone-wpp/ofc
+```
+
+> **Atenção:** algumas dependências podem exigir suporte nativo no Android. A instalação e a conexão devem ser verificadas no aparelho utilizado. Prefira a pasta privada do Termux ao armazenamento compartilhado.
+
+---
+
+## 🖥️ VPS / LINUX
+
+Com o Node.js **20+** instalado:
+
+```bash
+npm install @stone-wpp/ofc
+```
+
+Para contribuir ou estudar o código-fonte:
+
+```bash
+git clone https://github.com/dylan-Modz/stone-wpp-ofc.git
+cd stone-wpp-ofc
+npm install
+```
+
+A biblioteca não define seu próprio comando `npm start`. O projeto que usa a Stone deve gerenciar sua execução.
+
+---
+
+## ⚙️ REQUISITOS
+
+| Componente | Versão / observação |
 | :--- | :--- |
-| Socket | Conexão, autenticação, mensagens e eventos |
-| Grupos | Gerenciamento de membros, permissões e solicitações |
-| Comunidades | Operações com comunidades e grupos vinculados |
-| Canais | Informações, mensagens e reações; buscas e métricas locais |
-| Bots | Envio e recebimento por meio dos eventos disponíveis |
-| Listas | Envio individual para contatos com consentimento |
-| Chamadas | Links de áudio/vídeo e rejeição quando disponível |
-| Store | Armazenamento em memória, JSON e SQLite opcional |
-| Plugins | Registro, gerenciamento e remoção de extensões |
+| **Node.js** | 20 ou superior. |
+| **JavaScript** | ES Modules (ESM). |
+| **SQLite** *(opcional)* | Node.js 22.13+ ou 24+; 22.5–22.12 exige sinalizador experimental. |
+| **npm** | Para instalar e atualizar a biblioteca. |
+| **Git** | Necessário apenas para clonar o repositório. |
+| **Internet** | Necessária para a comunicação online. |
 
-> Busca remota avançada de canais, listas de transmissão nativas, compartilhamento de histórico antigo com novos membros, chamadas com mídia em tempo real e conexão móvel primária **ainda não estão implementados**.
+Sem SQLite, a Stone pode ser usada no Node.js 20+ sem um banco de dados adicional.
 
 ---
 
-<details>
-<summary><b>🪨 ESTRUTURA DA BIBLIOTECA</b></summary>
+## 🗂️ ORGANIZAÇÃO DO PROJETO
 
 ```text
 stone-wpp-ofc/
@@ -198,65 +197,62 @@ stone-wpp-ofc/
 └── LICENSE
 ```
 
-</details>
-
 ---
 
-## 🪨 SOBRE O PROJETO
+## 📚 DOCUMENTAÇÃO E SUPORTE
 
-A **Stone WPP** é um projeto independente, voltado à evolução de uma biblioteca de comunicação com WhatsApp. A proposta é manter o código organizado, modular e preparado para receber melhorias sem obrigar os usuários a instalar funcionalidades opcionais.
-
-**Pacote:** `@stone-wpp/ofc`  
-**Versão:** `1.0.0`  
-**Repositório:** [Stone WPP no GitHub](https://github.com/dylan-Modz/stone-wpp-ofc)
-
----
-
-## 🪨 DESENVOLVEDOR
+A documentação navegável contém páginas para instalação, autenticação, mensagens, botões, grupos, comunidades, canais e mais.
 
 <div align="center">
 
-<table>
-<tr>
-<td align="right" valign="middle">
+<a href="https://stone-wpp.vercel.app/">
+  <img src="https://img.shields.io/badge/ABRIR-DOCUMENTA%C3%87%C3%83O%20STONE%20WPP-00BFFF?style=for-the-badge&labelColor=101820" alt="Abrir documentação oficial" />
+</a>
 
-<img src="https://github.com/dylan-Modz.png?size=120" alt="Dylan Modz" width="120" height="120">
+<br><br>
 
-</td>
-<td align="left" valign="middle">
-
-<h2>Dylan Modz</h2>
-
-<p>Desenvolvedor e mantenedor da Stone WPP.</p>
-
-<p>
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
-  <img src="https://img.shields.io/badge/Node.js-00BFFF?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/STONE%20WPP-00BFFF?style=flat-square&logo=whatsapp&logoColor=white" alt="Stone WPP">
-</p>
-
-</td>
-</tr>
-</table>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc/issues">Reportar problemas</a> · <a href="https://github.com/dylan-Modz/stone-wpp-ofc">Acompanhar atualizações</a>
 
 </div>
 
 ---
 
-## 🪨 LICENÇA
+## 👨‍💻 DESENVOLVEDOR
 
-O projeto utiliza a licença **MIT**. Os avisos de copyright e os direitos dos contribuidores anteriores permanecem preservados no arquivo [LICENSE](./LICENSE).
+<div align="center">
 
-A Stone WPP não possui afiliação oficial com o WhatsApp.
+<a href="https://github.com/dylan-Modz">
+  <img src="https://github.com/dylan-Modz.png?size=140" width="112" height="112" alt="Avatar do Dylan Modz" />
+</a>
+
+### Dylan Modz
+
+**Criador e mantenedor da Stone WPP**
+
+<img src="https://img.shields.io/badge/JavaScript-101820?style=flat-square&logo=javascript&logoColor=F7DF1E" alt="JavaScript" />
+<img src="https://img.shields.io/badge/Node.js-101820?style=flat-square&logo=node.js&logoColor=00BFFF" alt="Node.js" />
+<img src="https://img.shields.io/badge/Stone%20WPP-00BFFF?style=flat-square&labelColor=101820" alt="Stone WPP" />
+
+</div>
+
+---
+
+## 📜 LICENÇA
+
+Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](https://github.com/dylan-Modz/stone-wpp-ofc/blob/main/LICENSE). Os avisos e direitos dos contribuidores anteriores permanecem preservados.
+
+A Stone WPP é um projeto independente e **não possui afiliação oficial com o WhatsApp ou a Meta**.
 
 ---
 
 <div align="center">
 
-# 🪨 STONE WPP
+### 🪨 STONE WPP
 
-### Desenvolvido por Dylan Modz
+*Conecte. Desenvolva. Evolua.*
 
-**Stone WPP • Biblioteca para WhatsApp • 1.0.0**
+**Desenvolvido por Dylan Modz**
+
+<a href="https://www.npmjs.com/package/@stone-wpp/ofc">npm</a> · <a href="https://stone-wpp.vercel.app/">documentação</a> · <a href="https://github.com/dylan-Modz/stone-wpp-ofc">GitHub</a>
 
 </div>
