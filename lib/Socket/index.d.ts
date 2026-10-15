@@ -1,6 +1,5 @@
 import type { UserFacingSocketConfig } from '../Types/index.js';
-import type { StoneOptions, StoneFeatures } from '../Recursos/index.js';
-declare const makeWASocket: (config: UserFacingSocketConfig & {stone?: StoneOptions}) => {
+declare const makeWASocket: (config: UserFacingSocketConfig) => {
     communityMetadata: (jid: string) => Promise<import("../index.js").GroupMetadata>;
     communityCreate: (subject: string, body: string) => Promise<import("../index.js").GroupMetadata | null>;
     communityCreateGroup: (subject: string, participants: string[], parentCommunityJid: string) => Promise<import("../index.js").GroupMetadata | null>;
@@ -257,5 +256,5 @@ declare const makeWASocket: (config: UserFacingSocketConfig & {stone?: StoneOpti
     }[] | undefined>;
     fetchAccountReachoutTimelock: () => Promise<import("../index.js").ReachoutTimelockState>;
     fetchNewChatMessageCap: () => Promise<import("../index.js").NewChatMessageCapInfo>;
-} & {readonly stone: StoneFeatures};
+};
 export default makeWASocket;
