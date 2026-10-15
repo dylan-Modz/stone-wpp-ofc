@@ -1,10 +1,6 @@
 import type { StoneStore } from '../Store/index.js';
 import type { StonePluginManager } from '../Plugins/index.js';
 
-export interface StoneOptions {
-    store?: StoneStore;
-    listas?: { maxDestinatarios?: number };
-}
 export interface StoneFeatures {
     readonly store: StoneStore;
     readonly plugins: StonePluginManager;
@@ -55,7 +51,6 @@ export interface StoneFeatures {
         rejeitar(id: string, remetente: string): Promise<unknown>;
     };
 }
-export declare function attachStoneFeatures<T extends {sendMessage: (...args: any[]) => any}>(socket: T, options?: StoneOptions): T & {readonly stone: StoneFeatures};
 export declare function criarRecursosCanais(socket: unknown): StoneFeatures['canais'];
 export declare function criarRecursosGrupos(socket: unknown, store: StoneStore): StoneFeatures['grupos'];
 export declare function criarRecursosBots(socket: unknown): StoneFeatures['bots'];
