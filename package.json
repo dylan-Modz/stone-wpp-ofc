@@ -1,7 +1,7 @@
 {
   "name": "@stone-wpp/ofc",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Stone WPP — biblioteca modular para WhatsApp em Node.js: conexão, mensagens, grupos, canais, stores e plugins",
   "keywords": [
     "stone-wpp",
