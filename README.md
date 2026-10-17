@@ -14,7 +14,7 @@
 
 **STONE WPP — Biblioteca modular para WhatsApp em Node.js**
 
-*Conexão • Autenticação • Mensagens • Botões • Grupos • Canais • Plugins*
+*Conexão • Autenticação • Mensagens • Botões • Grupos • Canais • Extensions*
 
 <br>
 
@@ -58,7 +58,7 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 | 🧩 **Botões** | Exemplos e referências das mensagens interativas. |
 | 👥 **Grupos e comunidades** | Operações e gerenciamento. |
 | 📢 **Canais** | Métodos e recursos disponíveis. |
-| ⚙️ **Outros módulos** | API, armazenamento, plugins e funcionalidades relacionadas. |
+| ⚙️ **Outros módulos** | API, DataLayer (armazenamento), Extensions (extensões) e funcionalidades relacionadas. |
 
 > **Importante:** a Stone WPP está em desenvolvimento. Consulte a documentação para conhecer os recursos disponíveis e suas limitações. Nem todas as funções planejadas estão implementadas.
 

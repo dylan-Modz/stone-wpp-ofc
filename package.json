@@ -2,7 +2,7 @@
   "name": "@stone-wpp/ofc",
   "type": "module",
   "version": "1.0.3",
-  "description": "Stone WPP — biblioteca modular para WhatsApp em Node.js: conexão, mensagens, grupos, canais, stores e plugins",
+  "description": "Stone WPP — biblioteca modular para WhatsApp em Node.js: conexão, mensagens, grupos, canais, armazenamento e extensões",
   "keywords": [
     "stone-wpp",
     "whatsapp",
@@ -12,8 +12,9 @@
     "messages",
     "groups",
     "channels",
-    "plugins",
-    "automation"
+    "extensions",
+    "automation",
+    "storage"
   ],
   "homepage": "https://stone-wpp.vercel.app/",
   "license": "MIT",
