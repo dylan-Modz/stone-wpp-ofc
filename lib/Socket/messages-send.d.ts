@@ -1,6 +1,6 @@
 import NodeCache from '@cacheable/node-cache';
 import { Boom } from '@hapi/boom';
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import type { AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMessage, WAMessageKey } from '../Types/index.js';
 import { MessageRetryManager } from '../Utils/index.js';
 import { type BinaryNode, type JidWithDevice } from '../WABinary/index.js';

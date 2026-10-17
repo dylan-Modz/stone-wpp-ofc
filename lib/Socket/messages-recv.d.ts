@@ -1,7 +1,7 @@
 import NodeCache from '@cacheable/node-cache';
 import { Boom } from '@hapi/boom';
 import Long from 'long';
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import type { MessageReceiptType, MessageRelayOptions, NewChatMessageCapInfo, SocketConfig, WAMessage, WAMessageKey } from '../Types/index.js';
 import { type BinaryNode, type JidWithDevice } from '../WABinary/index.js';
 export declare const makeMessagesRecvSocket: (config: SocketConfig) => {

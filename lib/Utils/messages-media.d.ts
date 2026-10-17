@@ -2,7 +2,7 @@ import { Boom } from '@hapi/boom';
 import type { Agent } from 'https';
 import { Readable, Transform } from 'stream';
 import { URL } from 'url';
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import { type MediaType } from '../Defaults/index.js';
 import type { DownloadableMessage, MediaConnInfo, MediaDecryptionKeyInfo, SocketConfig, WAMediaUpload, WAMediaUploadFunction, WAMessageContent, WAMessageKey } from '../Types/index.js';
 import { type BinaryNode } from '../WABinary/index.js';

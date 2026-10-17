@@ -1,5 +1,5 @@
 import { type Transform } from 'stream';
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import type { AnyMediaMessageContent, AnyMessageContent, ButtonsMessageInput, MessageContentGenerationOptions, MessageGenerationOptions, MessageGenerationOptionsFromContent, MessageUserReceipt, MiscMessageGenerationOptions, WAMessage, WAMessageContent, WAMessageKey } from '../Types/index.js';
 import type { ILogger } from './logger.js';
 import { type MediaDownloadOptions } from './messages-media.js';

@@ -1,4 +1,4 @@
-import type { proto } from '../../WAProto/index.js';
+import type { proto } from '../../Protocol/index.js';
 import type { AccountSettings } from './Auth.js';
 import type { QuickReplyAction } from './Bussines.js';
 import type { BufferedEventData } from './Events.js';

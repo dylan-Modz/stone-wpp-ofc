@@ -1,6 +1,6 @@
 import type { Readable } from 'stream';
 import type { URL } from 'url';
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import type { MediaType } from '../Defaults/index.js';
 import type { BinaryNode } from '../WABinary/index.js';
 import type { GroupMetadata } from './GroupMetadata.js';

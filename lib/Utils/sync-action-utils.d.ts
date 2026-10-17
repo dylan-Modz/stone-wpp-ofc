@@ -1,4 +1,4 @@
-import { proto } from '../../WAProto/index.js';
+import { proto } from '../../Protocol/index.js';
 import type { StoneWPPEventEmitter, StoneWPPEventMap, Contact } from '../Types/index.js';
 import type { ILogger } from './logger.js';
 export type ContactsUpsertResult = {

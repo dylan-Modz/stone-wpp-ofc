@@ -23,7 +23,7 @@
   "types": "lib/index.d.ts",
   "files": [
     "lib/**/*",
-    "WAProto/**/*",
+    "Protocol/**/*",
     "engine-requirements.js",
     "README.md",
     "LICENSE"
