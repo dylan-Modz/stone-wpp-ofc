@@ -8,6 +8,14 @@ function createSocket() {
   const calls = []
   const socket = {
     ev,
+    async executeUSyncQuery(query) {
+      calls.push({ kind: 'username', query })
+      return { list: [{ id: '12345@lid', contact: true }] }
+    },
+    async chatModify(mod, jid) {
+      calls.push({ kind: 'chatModify', mod, jid })
+      return true
+    },
     async sendMessage(jid, message, options) {
       calls.push({ kind: 'message', jid, message, options })
       return { key: { id: 'sent-id' } }
@@ -76,4 +84,37 @@ test('lista de etiquetas reflete eventos observados e exclusões', () => {
   ev.emit('labels.edit',{id:'1',deleted:true})
   assert.equal(methods.getLabelById('1'),undefined)
   assert.equal(methods.getLabels().length,0)
+})
+
+test('queryUsernameExists usa USync com contato username, retorna LID', async () => {
+  const { methods, calls } = createSocket()
+  const user = await methods.queryUsernameExists('@teste_abc', '1234')
+  assert.equal(user.jid, '12345@lid')
+  const sync = calls.find(call => call.kind === 'username').query
+  const node = sync.protocols[0].getUserElement(sync.users[0])
+  assert.equal(node.attrs.username, 'teste_abc')
+  assert.equal(node.attrs.pin, '1234')
+  await assert.rejects(methods.queryUsernameExists('xx', '1234'), TypeError)
+})
+
+test('setCustomerNote e getCustomerNote preservam o conteúdo e usam app-state', async () => {
+  const { methods, calls } = createSocket()
+  const note = await methods.setCustomerNote(jid, 'Cliente VIP')
+  assert.equal(methods.getCustomerNote(jid).content, 'Cliente VIP')
+  const update = calls.find(call => call.kind === 'chatModify')
+  assert.equal(update.mod.noteEdit.chatId, jid)
+  assert.equal(update.mod.noteEdit.content, 'Cliente VIP')
+  const edited = await methods.setCustomerNote(jid, 'Cliente Ouro')
+  assert.equal(edited.id, note.id)
+  assert.equal(methods.getCustomerNote(jid).content, 'Cliente Ouro')
+  await methods.deleteCustomerNote(jid)
+  assert.equal(methods.getCustomerNote(jid), null)
+})
+
+test('notes.edit alimenta cache de notas recebidas via app-state', () => {
+  const { methods, ev } = createSocket()
+  ev.emit('notes.edit', { id:'note-1', chatId:jid, content:'via sync', createdAt:123, deleted:false })
+  assert.equal(methods.getCustomerNote(jid).content, 'via sync')
+  ev.emit('notes.edit', { id:'note-1', chatId:jid, deleted:true })
+  assert.equal(methods.getCustomerNote(jid), null)
 })

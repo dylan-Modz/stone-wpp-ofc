@@ -123,6 +123,13 @@ export type StoneWPPEventMap = {
     };
     /** Receive an update on a call, including when the call was received, rejected, accepted */
     call: WACallEvent[];
+    'notes.edit': {
+        id: string;
+        chatId: string;
+        content?: string;
+        createdAt?: number;
+        deleted: boolean;
+    };
     'labels.edit': Label;
     'labels.association': {
         association: LabelAssociation;
