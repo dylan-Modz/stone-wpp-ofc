@@ -256,5 +256,5 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     }[] | undefined>;
     fetchAccountReachoutTimelock: () => Promise<import("../index.js").ReachoutTimelockState>;
     fetchNewChatMessageCap: () => Promise<import("../index.js").NewChatMessageCapInfo>;
-};
+} & import('./stone-features.js').StoneAdditionalMethods;
 export default makeWASocket;
