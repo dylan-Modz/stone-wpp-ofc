@@ -55,10 +55,11 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 | 🚀 **Primeiros passos** | Instalação, configuração e uso inicial. |
 | 🔐 **Autenticação** | Sessão, conexão e reconexão. |
 | 💬 **Mensagens** | Envio, recebimento e eventos. |
-| 🧩 **Botões** | Exemplos e referências das mensagens interativas. |
+| 🧩 **Botões** | [Guia detalhado: botões tradicionais, localização, capa, ações e respostas](docs/botoes.md). |
 | 👥 **Grupos e comunidades** | Operações e gerenciamento. |
 | 📢 **Canais** | Métodos e recursos disponíveis. |
 | ⚙️ **Outros módulos** | API, DataLayer (armazenamento), Extensions (extensões) e funcionalidades relacionadas. |
+| 🛠️ **Recursos avançados** | [Guia verificado: fixar, apagar para mim, favoritos, etiquetas, grupos, canais, chamadas, privacidade e edição](docs/recursos-avancados.md). |
 
 > **Importante:** a Stone WPP está em desenvolvimento. Consulte a documentação para conhecer os recursos disponíveis e suas limitações. Nem todas as funções planejadas estão implementadas.
 
