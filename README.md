@@ -109,7 +109,7 @@ Para entender cada método, opções de conexão, eventos e exemplos, acesse a *
 
 | Recurso | Endereço |
 | :--- | :--- |
-| 📖 **Documentação completa** | **[stone-wpp.vercel.app](https://stone-wpp.squareweb.app/)** |
+| 📖 **Documentação completa** | **[stone-wpp.squareweb.app](https://stone-wpp.squareweb.app/)** |
 | 📦 **Pacote npm** | [@stone-wpp/ofc](https://www.npmjs.com/package/@stone-wpp/ofc) |
 | 🛠️ **Código-fonte** | [GitHub — Stone WPP](https://github.com/dylan-Modz/stone-wpp-ofc) |
 | 🐛 **Erros e sugestões** | [GitHub Issues](https://github.com/dylan-Modz/stone-wpp-ofc/issues) |
