@@ -16,7 +16,7 @@
     "automation",
     "storage"
   ],
-  "homepage": "https://stone-wpp.vercel.app/",
+  "homepage": "https://stone-wpp.squareweb.app/",
   "license": "MIT",
   "author": "Dylan Modz",
   "main": "lib/index.js",
