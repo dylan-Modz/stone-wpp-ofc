@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080d17">
+  <meta name="description" content="Stone WPP — documentação oficial da biblioteca modular para WhatsApp em Node.js. Instalação, autenticação, eventos e módulos.">
+  <meta property="og:title" content="Stone WPP — Documentação Oficial">
+  <meta property="og:description" content="Conecte. Desenvolva. Evolua.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://stone-wpp-ofc.vercel.app/">
+  <meta property="og:image" content="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23080d17'/%3E%3Cpath d='M46 17H27a12 12 0 0 0 0 24h10a5 5 0 0 1 0 10H17' fill='none' stroke='%233cdcff' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>Stone WPP — Documentação Oficial</title>
+  <style>
+    :root { color-scheme:dark; --bg:#080d17; --panel:#101928; --panel2:#111e31; --line:#243348; --muted:#98a9bd; --text:#eef7ff; --a:#3cdcff; --b:#4187ff; --radius:18px; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
+    * { box-sizing:border-box } html{scroll-behavior:smooth;scroll-padding-top:100px} body{margin:0;background:var(--bg);color:var(--text);font-size:15px;line-height:1.7}
+    body:before {content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse 750px 540px at 70% -15%,#074f7577,transparent 75%),radial-gradient(ellipse 780px 560px at -25% 25%,#193b7b4c,transparent 70%),linear-gradient(180deg,#09111f,#080d17 55%);}
+    body:after {content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.22;background-image:linear-gradient(#6fa5b91c 1px,transparent 1px),linear-gradient(90deg,#6fa5b91c 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 78%)}
+    a { color:inherit;text-decoration:none } a:hover{color:var(--a)} button,input{font:inherit} button{cursor:pointer}
+    .shell {width:min(1220px,calc(100% - 44px));margin:auto}
+    .top {height:78px;border-bottom:1px solid #ffffff12;background:#080e19cc;backdrop-filter:blur(18px);position:sticky;top:0;z-index:20}
+    .top-inner {height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;font-size:17px;letter-spacing:.1px;font-weight:850}
+    .logo{width:40px;height:40px;display:grid;place-items:center;border:1px solid #36d7fa66;border-radius:13px;background:linear-gradient(145deg,#153a55,#0e1930);box-shadow:inset 0 0 18px #31b8ff25,0 0 28px #00c8ff18;color:#78eafa;font-size:23px;font-weight:900}
+    .brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;font-weight:700;line-height:1.15}
+    .top-links{display:flex;align-items:center;gap:30px;color:#b3c3d4;font-size:13px;font-weight:650}
+    .top-links .nav-cta{color:#07151e;background:#61dffd;border-radius:10px;padding:10px 17px;font-weight:800}
+    .menu-btn{display:none;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 12px}
+    .hero{padding:94px 0 65px;position:relative}
+    .hero-inner{max-width:820px}
+    .pill{display:inline-flex;align-items:center;gap:9px;font-size:11px;color:#b3efff;border:1px solid #3ad5fa52;padding:7px 12px;border-radius:999px;background:#2ad5ff10;font-weight:800;letter-spacing:1.4px}
+    .signal{width:7px;height:7px;border-radius:50%;background:#48ecbc;box-shadow:0 0 12px #48ecbc}
+    h1{font-size:clamp(44px,7.5vw,76px);line-height:1.08;letter-spacing:-3.5px;margin:22px 0 19px;font-weight:850}
+    h1 em{font-style:normal;background:linear-gradient(95deg,#60eeff,#4798ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero-desc{color:#b3c4d6;font-size:17px;max-width:650px;margin:0}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin:26px 0 23px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;gap:9px;padding:11px 19px;border-radius:11px;font-size:13px;font-weight:800;border:1px solid #375574;background:linear-gradient(130deg,#55dcff,#3ca2f5);color:#071722;box-shadow:0 6px 26px #30b9ff16}
+    .btn:hover{color:#071722;filter:brightness(1.08)}.btn.secondary{background:#101b2cb9;color:#dceef9;border-color:#36506d;box-shadow:none}.btn.secondary:hover{color:#69e5fa;border-color:#41bade}
+    .metadata{display:flex;flex-wrap:wrap;gap:12px;margin-top:35px}.metadata span{border:1px solid #32445c;border-radius:9px;padding:6px 11px;font-size:12px;font-weight:700;color:#afc0d2;background:#0e1929}
+    .meta-dot{color:var(--a)}
+    .docs-layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:45px;align-items:start;padding-bottom:90px;border-top:1px solid #263a4c;padding-top:40px}
+    .side{position:sticky;top:105px;max-height:calc(100vh - 128px);overflow:auto;scrollbar-width:thin;padding:4px 10px 18px 0}
+    .side-search{position:relative;margin:0 0 22px}
+    .side-search input{color:#eff7ff;background:#101a29;border:1px solid #304158;outline:0;border-radius:11px;padding:11px 14px 11px 38px;width:100%;font-size:12px}
+    .side-search input:focus{border-color:#32c9ef;box-shadow:0 0 0 3px #0ad4ff19}
+    .side-search svg{position:absolute;left:13px;top:12px;color:#8ca9bc;pointer-events:none}
+    .side-label{font-weight:850;color:#6f8b9f;text-transform:uppercase;font-size:10px;letter-spacing:1.7px;margin:22px 0 9px 11px}
+    .side a{display:block;padding:9px 12px;border-radius:9px;color:#a7b9cc;font-size:13px;font-weight:600;transition:.15s}
+    .side a:hover,.side a.active{color:#74e5ff;background:#1c344c99}
+    .main{min-width:0}.intro-label{font-size:12px;color:var(--a);text-transform:uppercase;font-weight:900;letter-spacing:1.7px}
+    .section{padding:15px 0 37px;border-bottom:1px solid #243346;scroll-margin-top:102px}
+    .section + .section {padding-top:39px}
+    h2{font-size:clamp(23px,3vw,30px);letter-spacing:-.9px;margin:9px 0 13px;line-height:1.22}
+    h3{font-size:16px;margin:0 0 9px}
+    p{color:#acbfd0;margin:0 0 18px}
+    strong{color:#e8f5ff}
+    .callout{background:linear-gradient(100deg,#122b42,#0c2233);border:1px solid #23628a;border-radius:14px;padding:16px 18px;margin:18px 0;color:#b9d9ea;font-size:13px}
+    .callout b{color:#64dcff}
+    .code-wrap{margin:17px 0 19px;border:1px solid #2d4059;background:#080f1b;border-radius:14px;overflow:hidden}
+    .code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #25364b;background:#111b2b;gap:10px}
+    .code-head span{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#a2b6c8;font-size:11px}
+    .copy{border:1px solid #36516a;background:#18293c;color:#bfe6f6;border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700}
+    .copy:hover{background:#204662}
+    pre{margin:0;padding:20px 18px;overflow:auto;color:#c6e6f5;font-size:12.5px;line-height:1.85;tab-size:2} code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    p code,li code{color:#8fe8ff;background:#1a2c41;padding:2px 5px;border-radius:5px;font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
+    .card{border:1px solid #2b3f55;background:linear-gradient(150deg,#142236b8,#0f1a2bde);border-radius:16px;padding:22px;min-height:164px;transition:transform .2s,border-color .2s}
+    .card:hover{transform:translateY(-2px);border-color:#3e94ae}
+    .icon{height:35px;width:35px;display:grid;place-items:center;border-radius:11px;background:#1a4960;color:#6fe9fb;font-weight:850;margin-bottom:15px}
+    .card p{font-size:13px;line-height:1.6;margin:0}.card h3{margin-bottom:7px}
+    .steps{padding:0;list-style:none;counter-reset:s;display:grid;gap:13px}
+    .steps li{padding:15px 16px 15px 54px;position:relative;background:#101c2d;border:1px solid #263a50;border-radius:12px;color:#b7c8d8;font-size:14px}
+    .steps li:before{counter-increment:s;content:counter(s);position:absolute;left:17px;top:15px;width:25px;height:25px;display:grid;place-items:center;color:#65dbfb;background:#193f54;border-radius:8px;font-weight:800;font-size:12px}
+    details{border:1px solid #2b4058;border-radius:12px;background:#111d2d;margin:12px 0;padding:14px 17px} summary{cursor:pointer;color:#e5f1fa;font-weight:700} details p{margin:11px 0 2px;font-size:13px}
+    .bottom{border-top:1px solid #26394a;padding:30px 0 43px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:#8198ac;font-size:12px}
+    .bottom a{color:#98dff5}.empty{display:none;color:#8caec1;font-size:13px;padding:22px 0}
+    @media(max-width:850px){.docs-layout{gap:25px;grid-template-columns:190px minmax(0,1fr)}.hero{padding-top:69px}.top-links{gap:14px}}
+    @media(max-width:680px){.shell{width:min(100% - 30px,1220px)}.top{height:66px}.top-links{display:none;position:absolute;top:65px;left:0;right:0;padding:14px 17px 20px;background:#0c1523;border-bottom:1px solid #2b4058;flex-direction:column;align-items:stretch;gap:8px}.top-links.open{display:flex}.top-links a{padding:8px 10px}.menu-btn{display:inline-block}.hero{padding:59px 0 42px}.hero-desc{font-size:15px}h1{letter-spacing:-2px}.docs-layout{display:block;padding-top:21px}.side{position:static;max-height:none;padding:0 0 12px;border-bottom:1px solid #263a4c;margin-bottom:18px}.side-search{margin-bottom:7px}.side-label,.side nav{display:none}.side-search input{font-size:14px}.section{padding-top:20px}.section+.section{padding-top:28px}.grid{grid-template-columns:1fr}.card{min-height:auto;padding:19px}.bottom{padding-bottom:36px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="shell top-inner">
+      <a class="brand" href="#inicio" aria-label="Stone WPP, início">
+        <span class="logo">S</span><span>STONE WPP <small>DOCUMENTAÇÃO</small></span>
+      </a>
+      <nav class="top-links" id="topnav">
+        <a href="#instalacao">Começar</a><a href="#recursos">Recursos</a>
+        <a href="https://github.com/dylan-Modz/stone-wpp-ofc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a class="nav-cta" href="https://www.npmjs.com/package/@stone-wpp/ofc" target="_blank" rel="noopener noreferrer">Ver no npm ↗</a>
+      </nav>
+      <button class="menu-btn" id="menu" aria-controls="topnav" aria-expanded="false">☰ Menu</button>
+    </div>
+  </header>
+  <main>
+    <div class="shell hero" id="inicio">
+      <div class="hero-inner">
+        <div class="pill"><span class="signal"></span> DOCUMENTAÇÃO OFICIAL · V1.0.4</div>
+        <h1>Desenvolva sem<br><em>limites com a Stone.</em></h1>
+        <p class="hero-desc">Uma biblioteca modular para integrar recursos do WhatsApp às suas aplicações Node.js. Conheça as bases, configure a autenticação e explore os módulos disponíveis.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#instalacao">Começar agora <span aria-hidden="true">→</span></a>
+          <a class="btn secondary" href="https://github.com/dylan-Modz/stone-wpp-ofc" target="_blank" rel="noopener noreferrer">Ver código no GitHub ↗</a>
+        </div>
+        <div class="metadata"><span><span class="meta-dot">◆</span> Node.js 20+</span><span><span class="meta-dot">◆</span> ES Modules</span><span><span class="meta-dot">◆</span> Licença MIT</span><span><span class="meta-dot">◆</span> Desenvolvido por Dylan Modz</span></div>
+      </div>
+    </div>
+    <div class="shell docs-layout">
+      <aside class="side" aria-label="Navegação da documentação">
+        <div class="side-search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+          <input id="search" type="search" placeholder="Pesquisar documentação…" aria-label="Pesquisar documentação">
+        </div>
+        <nav id="sidenav">
+          <div class="side-label">Introdução</div>
+          <a href="#instalacao">Instalação</a><a href="#primeiros-passos">Primeiros passos</a><a href="#autenticacao">Autenticação</a>
+          <div class="side-label">Biblioteca</div>
+          <a href="#recursos">Módulos e recursos</a><a href="#mensagens">Mensagens</a><a href="#botoes">Botões e interações</a><a href="#grupos">Grupos e canais</a><a href="#extensoes">Extensions e DataLayer</a>
+          <div class="side-label">Ajuda</div>
+          <a href="#perguntas">Perguntas frequentes</a><a href="#referencias">Links oficiais</a>
+        </nav>
+      </aside>
+      <article class="main" id="docs">
+        <section class="section" id="instalacao" data-search="instalação npm node yarn pacote instalar termux dependências">
+          <span class="intro-label">01 / Comece aqui</span><h2>Instalação</h2>
+          <p>Instale a Stone WPP em seu projeto Node.js usando o gerenciador de pacotes da sua preferência. O pacote oficial é <code>@stone-wpp/ofc</code>.</p>
+          <div class="code-wrap"><div class="code-head"><span>Terminal · npm</span><button class="copy" data-copy>Copiar</button></div><pre><code>npm install @stone-wpp/ofc</code></pre></div>
+          <p><strong>Requisitos:</strong> Node.js 20 ou superior. O pacote utiliza ES Modules (ESM).</p>
+          <div class="callout"><b>Nota:</b> Stone WPP é uma biblioteca para desenvolvedores — não é um bot pronto para executar com <code>npm start</code>. Crie sua aplicação e importe os módulos necessários.</div>
+        </section>
+        <section class="section" id="primeiros-passos" data-search="primeiros passos exemplo inicial conexão socket createStone makeWASocket">
+          <span class="intro-label">02 / Configure</span><h2>Primeiros passos</h2>
+          <p>Inicialize uma sessão e acompanhe os eventos de conexão. Este exemplo segue o padrão publicado no README oficial do projeto.</p>
+          <div class="code-wrap"><div class="code-head"><span>JavaScript · app.js</span><button class="copy" data-copy>Copiar</button></div><pre><code>import createStone, { useMultiFileAuthState } from '@stone-wpp/ofc'
+
+const { state, saveCreds } =
+  await useMultiFileAuthState('./sessao')
+
+const stone = createStone({ auth: state })
+
+stone.ev.on('creds.update', saveCreds)
+
+stone.ev.on('connection.update', ({ connection }) => {
+  console.log('[ STONE ]', connection)
+})</code></pre></div>
+          <ol class="steps"><li>Instale a biblioteca e configure seu projeto para utilizar módulos ES.</li><li>Crie o estado de autenticação e inicialize o socket.</li><li>Escute os eventos e persista as credenciais em local seguro.</li></ol>
+        </section>
+        <section class="section" id="autenticacao" data-search="autenticação sessão credenciais login pareamento reconexão qrcode">
+          <span class="intro-label">03 / Segurança</span><h2>Autenticação e sessões</h2>
+          <p>O estado de autenticação mantém os dados necessários para a conexão. No exemplo de inicialização, <code>useMultiFileAuthState</code> fornece o estado e a função de persistência, e <code>creds.update</code> sinaliza mudanças nas credenciais.</p>
+          <div class="callout"><b>Atenção:</b> nunca publique pastas de sessão, credenciais ou tokens no GitHub. Use armazenamento protegido, com permissões de acesso adequadas.</div>
+          <p>Para conhecer outras opções e tipos exportados, consulte os módulos <strong>Utils</strong>, <strong>Socket</strong> e <strong>Types</strong> do repositório.</p>
+        </section>
+        <section class="section" id="recursos" data-search="recursos módulos whatsapp funcionalidades arquitetura biblioteca">
+          <span class="intro-label">04 / Explore</span><h2>Recursos da biblioteca</h2>
+          <p>A Stone reúne módulos voltados à comunicação, gerenciamento e extensibilidade. Consulte o código-fonte para identificar a disponibilidade e as assinaturas exatas de cada recurso na versão instalada.</p>
+          <div class="grid">
+            <a class="card" href="#mensagens"><span class="icon">✉</span><h3>Mensagens</h3><p>Eventos e recursos de envio e recebimento para aplicações conectadas.</p></a>
+            <a class="card" href="#botoes"><span class="icon">▦</span><h3>Interações</h3><p>Estruturas de mensagens e componentes interativos.</p></a>
+            <a class="card" href="#grupos"><span class="icon">◎</span><h3>Grupos e canais</h3><p>Operações relacionadas a grupos, comunidades e canais.</p></a>
+            <a class="card" href="#extensoes"><span class="icon">✧</span><h3>Extensibilidade</h3><p>Organize módulos e explore Extensions e DataLayer.</p></a>
+          </div>
+        </section>
+        <section class="section" id="mensagens" data-search="mensagens eventos envio recebimento sockets mensagens message">
+          <span class="intro-label">05 / Comunicação</span><h2>Mensagens e eventos</h2>
+          <p>O socket da Stone concentra recursos de comunicação. Os módulos exportados incluem <code>Socket</code>, <code>WAM</code>, <code>WABinary</code> e <code>WAUSync</code>, além dos tipos de apoio.</p>
+          <p>Ao implementar recursos de mensagens, confira os nomes dos métodos e os formatos dos argumentos diretamente na versão que você instalou, pois a biblioteca está em desenvolvimento.</p>
+          <a class="btn secondary" href="https://github.com/dylan-Modz/stone-wpp-ofc/tree/main/lib" target="_blank" rel="noopener noreferrer">Explorar o código da biblioteca ↗</a>
+        </section>
+        <section class="section" id="botoes" data-search="botões carrossel lista interativo buttons list interactive">
+          <span class="intro-label">06 / Interação</span><h2>Botões e mensagens interativas</h2>
+          <p>O projeto contempla estruturas de interação para mensagens. A compatibilidade e os tipos de interação variam conforme a implementação e a versão do WhatsApp.</p>
+          <p>Consulte o código-fonte e os tipos exportados antes de utilizar listas, botões ou outros formatos interativos. Não presuma suporte a um recurso apenas porque ele aparece como planejado.</p>
+        </section>
+        <section class="section" id="grupos" data-search="grupos comunidades canais administração groups community newsletter channels">
+          <span class="intro-label">07 / Organização</span><h2>Grupos, comunidades e canais</h2>
+          <p>A biblioteca tem módulos voltados a operações de grupos, comunidades e canais. Trabalhe com os métodos e eventos documentados pelo código da versão instalada, respeitando permissões de participantes e administradores.</p>
+          <div class="callout"><b>Compatibilidade:</b> alguns recursos podem depender de alterações no protocolo ou de permissões específicas da conta conectada.</div>
+        </section>
+        <section class="section" id="extensoes" data-search="extensions datalayer armazenamento store extensões plugins">
+          <span class="intro-label">08 / Arquitetura</span><h2>Extensions e DataLayer</h2>
+          <p>O pacote exporta módulos de <code>Extensions</code> e <code>DataLayer</code>, que ajudam a compor integrações e recursos de armazenamento na aplicação.</p>
+          <p>Para integrações avançadas, confira as interfaces e exports diretamente nas pastas oficiais do projeto.</p>
+          <a class="btn secondary" href="https://github.com/dylan-Modz/stone-wpp-ofc/tree/main/lib" target="_blank" rel="noopener noreferrer">Examinar módulos ↗</a>
+        </section>
+        <section class="section" id="perguntas" data-search="perguntas erros problemas node suporte instalação npm faq">
+          <span class="intro-label">09 / Ajuda</span><h2>Perguntas frequentes</h2>
+          <details><summary>A Stone WPP é um bot completo?</summary><p>Não. É uma biblioteca Node.js para que você desenvolva e mantenha seus próprios projetos.</p></details>
+          <details><summary>Qual versão do Node.js é necessária?</summary><p>O pacote informa suporte a Node.js 20 ou superior. Confira também os requisitos das dependências nativas no seu ambiente.</p></details>
+          <details><summary>Funciona no Termux?</summary><p>É possível tentar a instalação no Termux com Node.js LTS; alguns pacotes podem exigir compilação ou suporte nativo no Android.</p></details>
+          <details><summary>Como comunicar um problema?</summary><p>Abra uma issue no repositório do GitHub com os passos para reproduzir, a versão utilizada e os logs sem informações sensíveis.</p></details>
+        </section>
+        <section class="section" id="referencias" data-search="links npm github licença autor desenvolvedor dylan modz">
+          <span class="intro-label">10 / Comunidade</span><h2>Links oficiais</h2>
+          <div class="grid">
+            <a class="card" href="https://github.com/dylan-Modz/stone-wpp-ofc" target="_blank" rel="noopener noreferrer"><span class="icon">⌘</span><h3>Código-fonte ↗</h3><p>Repositório e histórico de desenvolvimento da Stone WPP.</p></a>
+            <a class="card" href="https://www.npmjs.com/package/@stone-wpp/ofc" target="_blank" rel="noopener noreferrer"><span class="icon">⬡</span><h3>Pacote npm ↗</h3><p>Instalação e informações da publicação oficial.</p></a>
+            <a class="card" href="https://github.com/dylan-Modz/stone-wpp-ofc/issues" target="_blank" rel="noopener noreferrer"><span class="icon">!</span><h3>Issues ↗</h3><p>Reporte falhas ou envie sugestões à manutenção do projeto.</p></a>
+            <a class="card" href="https://github.com/dylan-Modz" target="_blank" rel="noopener noreferrer"><span class="icon">D</span><h3>Dylan Modz ↗</h3><p>Criador e mantenedor da Stone WPP.</p></a>
+          </div>
+        </section>
+        <p id="empty" class="empty" role="status">Nenhuma seção encontrada. Tente outro termo.</p>
+      </article>
+    </div>
+  </main>
+  <footer class="shell bottom"><span>© Stone WPP · Desenvolvido por Dylan Modz · Licença MIT</span><span>Projeto independente, não afiliado ao WhatsApp ou à Meta.</span></footer>
+  <script>
+    (function(){
+      var menu=document.getElementById('menu'),nav=document.getElementById('topnav');
+      menu.addEventListener('click',function(){var on=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(on));});
+      nav.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');});});
+      var links=[].slice.call(document.querySelectorAll('#sidenav a'));
+      var sections=[].slice.call(document.querySelectorAll('.main .section'));
+      function setActive(){var current='';sections.forEach(function(s){if(s.getBoundingClientRect().top<=160){current=s.id;}});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+current);});}
+      window.addEventListener('scroll',setActive,{passive:true});setActive();
+      document.querySelectorAll('[data-copy]').forEach(function(btn){btn.addEventListener('click',function(){var pre=btn.closest('.code-wrap').querySelector('code');var txt=pre.innerText;var done=function(){btn.textContent='Copiado ✓';setTimeout(function(){btn.textContent='Copiar';},1800);};if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done).catch(function(){btn.textContent='Selecione o código';});}else{var range=document.createRange();range.selectNodeContents(pre);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);try{document.execCommand('copy');done();}catch(e){btn.textContent='Selecione o código';}sel.removeAllRanges();}});});
+      var search=document.getElementById('search'),empty=document.getElementById('empty');
+      search.addEventListener('input',function(){var q=search.value.toLocaleLowerCase('pt-BR').trim();var found=0;sections.forEach(function(s){var match=!q||(s.textContent+' '+s.dataset.search).toLocaleLowerCase('pt-BR').includes(q);s.hidden=!match;if(match){found++;}});empty.style.display=found?'none':'block';links.forEach(function(a){var dest=document.querySelector(a.getAttribute('href'));a.style.display=dest&&dest.hidden?'none':'';});});
+    })();
+  </script>
+</body>
+</html>
