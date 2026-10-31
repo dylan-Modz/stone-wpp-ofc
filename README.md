@@ -1,12 +1,12 @@
 <div align="center">
 
-<a href="https://stone-wpp.vercel.app/">
+<a href="https://stone-wpp.squareweb.app/">
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=31&pause=1000&color=00BFFF&center=true&vCenter=true&width=760&lines=STONE+WPP;DOCUMENTA%C3%87%C3%83O+OFICIAL;CRIADO+POR+DYLAN+MODZ" alt="STONE WPP — Documentação Oficial" />
 </a>
 
 <br>
 
-<a href="https://stone-wpp.vercel.app/">
+<a href="https://stone-wpp.squareweb.app/">
   <img src="https://raw.githubusercontent.com/Yoshirukkj/Download-/main/1b2li6.jpg" alt="Banner oficial Stone WPP — clique para acessar a documentação" width="800" />
 </a>
 
@@ -24,13 +24,13 @@
 
 <br><br>
 
-<a href="https://stone-wpp.vercel.app/">
+<a href="https://stone-wpp.squareweb.app/">
   <img src="https://img.shields.io/badge/ACESSAR-DOCUMENTA%C3%87%C3%83O%20OFICIAL-00BFFF?style=for-the-badge&labelColor=111820&logo=readthedocs&logoColor=white" alt="ACESSAR DOCUMENTAÇÃO OFICIAL STONE WPP">
 </a>
 
 <br>
 
-**[📖 Clique aqui para abrir o site completo da documentação](https://stone-wpp.vercel.app/)**
+**[📖 Clique aqui para abrir o site completo da documentação](https://stone-wpp.squareweb.app/)**
 
 <sub>Guias, referências, comandos, explicações e exemplos de uso organizados no site.</sub>
 
@@ -44,9 +44,9 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 <div align="center">
 
-### **[🌐 ABRIR DOCUMENTAÇÃO — STONE WPP](https://stone-wpp.vercel.app/)**
+### **[🌐 ABRIR DOCUMENTAÇÃO — STONE WPP](https://stone-wpp.squareweb.app/)**
 
-**https://stone-wpp.vercel.app/**
+**https://stone-wpp.squareweb.app/**
 
 </div>
 
@@ -99,7 +99,7 @@ stone.ev.on('connection.update', ({ connection }) => {
 })
 ```
 
-Para entender cada método, opções de conexão, eventos e exemplos, acesse a **[documentação oficial](https://stone-wpp.vercel.app/)**.
+Para entender cada método, opções de conexão, eventos e exemplos, acesse a **[documentação oficial](https://stone-wpp.squareweb.app/)**.
 
 > A Stone WPP é uma **biblioteca**, não um bot pronto. Não possui `npm start` próprio. Proteja suas sessões e credenciais; não as publique em repositórios.
 
@@ -109,7 +109,7 @@ Para entender cada método, opções de conexão, eventos e exemplos, acesse a *
 
 | Recurso | Endereço |
 | :--- | :--- |
-| 📖 **Documentação completa** | **[stone-wpp.vercel.app](https://stone-wpp.vercel.app/)** |
+| 📖 **Documentação completa** | **[stone-wpp.vercel.app](https://stone-wpp.squareweb.app/)** |
 | 📦 **Pacote npm** | [@stone-wpp/ofc](https://www.npmjs.com/package/@stone-wpp/ofc) |
 | 🛠️ **Código-fonte** | [GitHub — Stone WPP](https://github.com/dylan-Modz/stone-wpp-ofc) |
 | 🐛 **Erros e sugestões** | [GitHub Issues](https://github.com/dylan-Modz/stone-wpp-ofc/issues) |
@@ -134,7 +134,7 @@ Para entender cada método, opções de conexão, eventos e exemplos, acesse a *
 
 <br>
 
-<a href="https://stone-wpp.vercel.app/"><img src="https://img.shields.io/badge/VER%20TODAS%20AS-DOCUMENTA%C3%87%C3%95ES-00BFFF?style=for-the-badge&labelColor=111820" alt="Ver documentação completa"></a>
+<a href="https://stone-wpp.squareweb.app/"><img src="https://img.shields.io/badge/VER%20TODAS%20AS-DOCUMENTA%C3%87%C3%95ES-00BFFF?style=for-the-badge&labelColor=111820" alt="Ver documentação completa"></a>
 
 **STONE WPP • Conecte. Desenvolva. Evolua.**
 
