@@ -31,7 +31,8 @@
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "npm test"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",
