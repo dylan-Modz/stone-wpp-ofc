@@ -94,6 +94,28 @@ test('ciphertext e mensagens citadas não autorizam punição', async () => {
   assert.ok(!alerts.some(item => item.reason === 'payment'))
 })
 
+test('editar aviso é opcional e não tenta falsificar o autor do ataque', async () => {
+  const { socket, ev, actions } = mockSocket()
+  let calls = 0
+  socket.sendMessage = async (target, content) => {
+    actions.push(['notice', { target, content }])
+    calls++
+    return { key: { remoteJid: target, id: 'bot-notice', fromMe: true } }
+  }
+  const api = createGroupProtectionMethods(socket)
+  await api.groupProtection(jid, { mode: 'remove', editNotice: true })
+  for (let i = 1; i <= 3; i++) {
+    ev.emit('messages.upsert', { type: 'notify', messages: [msg(i, { requestPaymentMessage: { amount: 1 } })] })
+  }
+  await tick()
+  await tick()
+  assert.equal(calls, 3) // Primeiro aviso, deleção do ataque, edição do aviso
+  assert.equal(actions.filter(a => a[0] === 'remove').length, 1)
+  const noticeEdit = actions.find(a => a[0] === 'notice' && a[1].content.edit)
+  assert.equal(noticeEdit[1].content.edit.id, 'bot-notice')
+  assert.equal(noticeEdit[1].content.edit.fromMe, true)
+})
+
 test('monitores complementares não duplicam eventos', async () => {
   const { socket, ev } = mockSocket()
   const monitor = { ev: new EventEmitter() }
