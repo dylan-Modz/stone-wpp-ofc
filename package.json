@@ -29,7 +29,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "preinstall": "node ./engine-requirements.js"
+    "preinstall": "node ./engine-requirements.js",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",
