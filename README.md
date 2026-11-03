@@ -64,6 +64,26 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 ---
 
+## 🛡️ Proteção nativa dos grupos
+
+A função opcional `sock.groupProtection(jid, options)` observa mensagens de
+pagamento, flood, citações e indícios de mensagens invisíveis. Ela também pode
+usar até três **sockets auxiliares já conectados**, sem instalar patches externos.
+
+```js
+// Detecta e emite alertas, sem expulsar automaticamente:
+await sock.groupProtection('123456@g.us', { enabled: true })
+
+// Para ações automáticas, configure explicitamente mode: 'protect'.
+sock.ev.on('group-protection.alert', console.log)
+```
+
+O modo padrão é `alert`. Uma falha de descriptografia isolada não causa banimento.
+Veja a **[documentação da groupProtection](docs/group-protection.md)** para
+configuração, monitoramento e limites.
+
+---
+
 ## 📦 INSTALAÇÃO PELO NPM
 
 ```bash
