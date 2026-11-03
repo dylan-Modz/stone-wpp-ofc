@@ -22,7 +22,8 @@ await sock.groupProtection('123456@g.us', {
   paymentBurst: 3,
   messageBurst: 14,
   windowMs: 8000,
-  lockMs: 12000
+  lockMs: 12000,
+  editNotice: true // Edita aviso do próprio bot após a moderação
 })
 
 sock.ev.on('group-protection.alert', (alert) => {
@@ -64,6 +65,7 @@ recuperada por esta API. O mecanismo de retry/PDO nativo da Stone não é altera
 ## Limites e observações
 
 - Exige Node.js 20+ e a Stone WPP com esta implementação.
+- O aviso editável é enviado pelo bot. Mensagens de outras pessoas não podem ser reescritas como se fossem delas; a técnica do ZIP não é uma API de edição confiável.
 - O modo ativo vale só para a sessão do socket. Configure novamente após reiniciar o bot.
 - O comportamento depende das permissões do bot e do protocolo do WhatsApp.
 - Uma mensagem de pagamento isolada é registrada como alerta leve; a ação automática
