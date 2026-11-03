@@ -2,6 +2,8 @@ import type { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '../T
 import type { Label } from '../Types/Label.js'
 
 export interface StoneAdditionalMethods {
+  /** Edita o texto de mensagem enviada pelo próprio bot; não edita mensagens de terceiros. */
+  editMessage(jid: string, messageKey: WAMessageKey, text: string): Promise<WAMessage | undefined>;
   /** Pesquisa username pelo USync. Não retorna números de telefone. */
   queryUsernameExists(username: string, pin?: string): Promise<{ username: string; jid: string; wid: string; exists: true } | null>;
   /** Cria ou altera uma nota da conta WhatsApp Business via app-state. */
