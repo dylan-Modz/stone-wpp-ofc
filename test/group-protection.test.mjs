@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createGroupProtectionMethods } from '../lib/Socket/group-protection.js'
+import { createStoneAdditionalMethods } from '../lib/Socket/stone-features.js'
 
 const jid = '123@g.us'
 const alice = '111@s.whatsapp.net'
@@ -139,4 +140,15 @@ test('opções inválidas e administradores são preservados', async () => {
   }
   await tick()
   assert.equal(actions.length, 0)
+})
+
+test('editMessage só permite editar mensagens próprias', async () => {
+  const sock = { ev: new EventEmitter(), sendMessage: async (jid, content) => ({ key: { id: 'new-msg', remoteJid: jid, fromMe: true }, content }) }
+  const api = createStoneAdditionalMethods(sock)
+  await assert.rejects(api.editMessage(jid, { id: 'other-id', remoteJid: jid, fromMe: false }, 'teste'), TypeError)
+  await assert.rejects(api.editMessage(jid, { id: 'own-id', remoteJid: 'other@g.us', fromMe: true }, 'teste'), TypeError)
+  const edited = await api.editMessage(jid, { id: 'own-id', remoteJid: jid, fromMe: true }, 'corrigido')
+  assert.equal(edited.content.text, 'corrigido')
+  assert.equal(edited.content.edit.id, 'own-id')
+  assert.equal(edited.content.edit.fromMe, true)
 })
