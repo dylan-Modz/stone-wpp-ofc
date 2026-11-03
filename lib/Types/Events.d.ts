@@ -10,6 +10,21 @@ import type { LabelAssociation } from './LabelAssociation.js';
 import type { MessageUpsertType, MessageUserReceiptUpdate, WAMessage, WAMessageKey, WAMessageUpdate } from './Message.js';
 import type { ConnectionState, NewChatMessageCapInfo } from './State.js';
 export type StoneWPPEventMap = {
+    /** Sinal da recepção nativa de ciphertext (não confirma ataque). */
+    'tokito.security.ciphertext': {
+        remoteJid: string;
+        messageId: string;
+        participant: string;
+        participantAlt?: string;
+        decryptFail?: string | null;
+        encType?: string | null;
+        messageTimestamp?: number | bigint | object | null;
+        receivedAt: number;
+    };
+    /** Proteção de grupos: alerta de anomalia ou flood. */
+    'group-protection.alert': import('../Socket/group-protection.js').GroupProtectionAlert;
+    /** Ação da proteção: resultado real da tentativa. */
+    'group-protection.action': import('../Socket/group-protection.js').GroupProtectionAction;
     /** connection state has been updated -- WS closed, opened, connecting etc. */
     'connection.update': Partial<ConnectionState>;
     /** credentials updated -- some metadata, keys or something */
