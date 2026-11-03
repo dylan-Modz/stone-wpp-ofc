@@ -18,7 +18,7 @@
 
 <br>
 
-<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.5-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.5 do código no GitHub"></a>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.6-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.6 do código no GitHub"></a>
 <img src="https://img.shields.io/badge/NODE.JS-20%2B-111820?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20 ou superior">
 <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&labelColor=111820" alt="Licença MIT">
 
@@ -64,23 +64,56 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 ---
 
-## 🛡️ Proteção nativa dos grupos
+## 🛡️ Proteção nativa dos grupos — v1.0.6
 
-A função opcional `sock.groupProtection(jid, options)` observa mensagens de
-pagamento, flood, citações e indícios de mensagens invisíveis. Ela também pode
-usar até três **sockets auxiliares já conectados**, sem instalar patches externos.
+A `groupProtection` integra proteção contra flood, mensagens de pagamento em rajada, citações suspeitas e indícios de mensagens invisíveis. Ela reutiliza o recebimento, o retry e o PDO nativos da Stone. É **opcional** e **não depende de patches externos**.
+
+A função pertence à categoria **Grupos → Configurações de grupos**, no site de documentação.
 
 ```js
-// Detecta e emite alertas, sem expulsar automaticamente:
-await sock.groupProtection('123456@g.us', { enabled: true })
+// 1. Detectar e avisar (padrão: não pune automaticamente)
+await stone.groupProtection(grupoJid, { enabled: true })
 
-// Para ações automáticas, configure explicitamente mode: 'protect'.
-sock.ev.on('group-protection.alert', console.log)
+// 2. Ouvir ocorrências e resultados
+stone.ev.on('group-protection.alert', alerta => {
+  console.log(alerta.reason, alerta.severity, alerta.participant)
+})
+stone.ev.on('group-protection.action', resultado => {
+  console.log(resultado)
+})
+
+// 3. Moderação automática opcional (use apenas em grupos administrados por você)
+await stone.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'protect',
+  paymentBurst: 3,
+  messageBurst: 14,
+  windowMs: 8000,
+  lockMs: 12000,
+  editNotice: true // edita apenas o aviso criado pelo próprio bot
+})
+
+// 4. Consultar ou desativar
+console.log(await stone.groupProtection(grupoJid))
+await stone.groupProtection(grupoJid, { enabled: false })
 ```
 
-O modo padrão é `alert`. Uma falha de descriptografia isolada não causa banimento.
-Veja a **[documentação da groupProtection](docs/group-protection.md)** para
-configuração, monitoramento e limites.
+Os modos são `alert` (apenas alertas), `delete` (tenta apagar), `remove` (tenta apagar e remover participante) e `protect` (também fecha temporariamente o grupo). Ações administrativas exigem que o bot seja administrador e **não são disparadas por simples falha de descriptografia**.
+
+Para adicionar até três monitores complementares, passe sockets **já conectados e autenticados** em `monitors: [monitor1, monitor2, monitor3]`. Sessões adicionais não são pareadas automaticamente.
+
+### ✏️ Editar mensagens da própria conta
+
+A Stone já suporta edição nativa com `sendMessage(jid, { text, edit: key })`. A v1.0.6 adiciona o atalho `editMessage`, documentado em **Mensagens → Apagar e editar**:
+
+```js
+const enviada = await stone.sendMessage(grupoJid, { text: 'Aviso inicial' })
+await stone.editMessage(grupoJid, enviada.key, 'Aviso atualizado')
+```
+
+O WhatsApp não garante que seja possível editar texto escrito por terceiros; um administrador pode excluir uma mensagem alheia, mas não reescrevê-la em nome de outra pessoa.
+
+**Documentação completa:** [groupProtection e seus limites](docs/group-protection.md) · [Configurações de grupos no site](https://stone-wpp.squareweb.app/#/groups/configuracoes) · [Apagar e editar no site](https://stone-wpp.squareweb.app/#/messages/apagar).
 
 ---
 
