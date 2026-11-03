@@ -11,6 +11,17 @@ import type { MessageUpsertType, MessageUserReceiptUpdate, WAMessage, WAMessageK
 import type { ConnectionState, NewChatMessageCapInfo } from './State.js';
 export type StoneWPPEventMap = {
     /** Sinal da recepção nativa de ciphertext (não confirma ataque). */
+    'group-protection.ciphertext': {
+        remoteJid: string;
+        messageId: string;
+        participant: string;
+        participantAlt?: string;
+        decryptFail?: string | null;
+        encType?: string | null;
+        messageTimestamp?: number | bigint | object | null;
+        receivedAt: number;
+    };
+    /** Sinal da recepção nativa de ciphertext (não confirma ataque). */
     'tokito.security.ciphertext': {
         remoteJid: string;
         messageId: string;
