@@ -17,6 +17,8 @@ export interface GroupProtectionOptions {
   observePayments?: boolean
   observeQuotes?: boolean
   observeFlood?: boolean
+  /** Se true, publica um aviso do bot e edita o aviso ao concluir as ações. */
+  editNotice?: boolean
   /** Até três sockets adicionais já autenticados e presentes nos grupos. */
   monitors?: Array<{ ev: any }>
 }
