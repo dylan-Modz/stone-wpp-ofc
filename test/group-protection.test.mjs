@@ -82,7 +82,7 @@ test('ciphertext e mensagens citadas não autorizam punição', async () => {
   ev.on('group-protection.alert', item => alerts.push(item))
   await api.groupProtection(jid, { mode: 'protect' })
   for (let i = 1; i <= 4; i++) {
-    ev.emit('tokito.security.ciphertext', { remoteJid: jid, participant: alice, messageId: 'cipher-' + i, decryptFail: 'hide' })
+    ev.emit('group-protection.ciphertext', { remoteJid: jid, participant: alice, messageId: 'cipher-' + i, decryptFail: 'hide' })
   }
   ev.emit('messages.upsert', {
     type: 'notify',
@@ -151,4 +151,19 @@ test('editMessage só permite editar mensagens próprias', async () => {
   assert.equal(edited.content.text, 'corrigido')
   assert.equal(edited.content.edit.id, 'own-id')
   assert.equal(edited.content.edit.fromMe, true)
+})
+
+test('monitor não monitora grupos sem vínculo', async () => {
+  const { socket, ev } = mockSocket()
+  const monitor = { ev: new EventEmitter() }
+  const api = createGroupProtectionMethods(socket)
+  const alerts = []
+  ev.on('group-protection.alert', alert => alerts.push(alert))
+  await api.groupProtection('outro@g.us', { monitors: [monitor], mode: 'alert' })
+  await api.groupProtection(jid, { enabled: true, mode: 'alert' })
+  monitor.ev.emit('messages.upsert', {
+    type: 'notify',
+    messages: [msg(90, { requestPaymentMessage: { amount: 5 } })]
+  })
+  assert.equal(alerts.length, 0)
 })
