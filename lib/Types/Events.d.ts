@@ -36,6 +36,35 @@ export type StoneWPPEventMap = {
     'group-protection.alert': import('../Socket/group-protection.js').GroupProtectionAlert;
     /** Ação da proteção: resultado real da tentativa. */
     'group-protection.action': import('../Socket/group-protection.js').GroupProtectionAction;
+    /** Recibo de retry de grupo, sem conteúdo e sem provar ataque. */
+    'group-protection.receipt': {
+        remoteJid: string;
+        messageId: string;
+        participant: string;
+        type: 'retry';
+        receivedAt: number;
+    };
+    /** Telemetria nativa do PDO de placeholder resend. */
+    'group-protection.pdo': {
+        remoteJid: string;
+        messageId: string;
+        status: 'requested' | 'resolved' | 'timeout';
+    };
+    /** Notificação filtrada de PDO de grupos monitorados. */
+    'group-protection.pdo-observed': {
+        jid: string;
+        messageId: string;
+        status: string;
+        source: string;
+        receivedAt: number;
+    };
+    /** Estado de sockets complementares gerenciados pela aplicação. */
+    'group-protection.monitor': {
+        jid: string;
+        index: number;
+        status: 'connected' | 'logged-out' | 'error';
+        error?: string;
+    };
     /** connection state has been updated -- WS closed, opened, connecting etc. */
     'connection.update': Partial<ConnectionState>;
     /** credentials updated -- some metadata, keys or something */
