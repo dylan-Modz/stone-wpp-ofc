@@ -62,7 +62,7 @@ export type StoneWPPEventMap = {
     'group-protection.monitor': {
         jid: string;
         index: number;
-        status: 'connected' | 'logged-out' | 'error';
+        status: 'attached' | 'connected' | 'logged-out' | 'error';
         error?: string;
     };
     /** connection state has been updated -- WS closed, opened, connecting etc. */
