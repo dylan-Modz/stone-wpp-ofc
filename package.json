@@ -98,6 +98,9 @@
     "node": ">=20.0.0"
   },
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dylan-Modz/stone-wpp-ofc.git"
