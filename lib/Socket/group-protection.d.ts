@@ -27,6 +27,15 @@ export interface GroupProtectionMonitor {
   }
 }
 
+/** Cria/recria sessão auxiliar do próprio usuário. O aplicativo ainda persiste a autenticação. */
+export interface GroupProtectionMonitorPairing {
+  create(args: { jid: string; attempt: number }): Promise<GroupProtectionMonitor>
+  /** Número com DDI para solicitar o código somente se a sessão não estiver registrada. */
+  phoneNumber?: string
+  /** Callback privado: mostre o código ao titular para confirmação no WhatsApp. */
+  onPairingCode?: (info: { jid: string; index: number; code: string }) => void | Promise<void>
+}
+
 export interface GroupProtectionOptions {
   /** Desativada por padrão; chamar com {enabled: true} para ativar. */
   enabled?: boolean
@@ -51,7 +60,10 @@ export interface GroupProtectionOptions {
   /** Factories de até 3 sessões extras já autenticadas; reconecta em queda temporária.
    *  O próprio aplicativo deve criar os sockets e persistir as credenciais.
    *  Logout não causa novo pareamento automático. */
-  monitorFactories?: Array<(args: { jid: string; attempt: number }) => Promise<GroupProtectionMonitor>>
+  monitorFactories?: Array<
+    ((args: { jid: string; attempt: number }) => Promise<GroupProtectionMonitor>)
+    | GroupProtectionMonitorPairing
+  >
   monitorReconnectMs?: number
   /** Recibos de retry são tratados apenas como telemetria, nunca prova de ataque. */
   observeReceipts?: boolean
