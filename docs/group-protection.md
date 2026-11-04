@@ -138,6 +138,38 @@ sock.ev.on('group-protection.monitor', ({ index, status, error }) => {
 })
 ```
 
+### Pareamento autorizado de um monitor novo
+
+Se a sessão auxiliar ainda não foi vinculada, é possível solicitar um código
+**somente quando o titular configurar explicitamente** o número e callback.
+A Stone informa o código; o proprietário confirma no aplicativo WhatsApp.
+
+```js
+import makeStone, { useMultiFileAuthState } from '@stone-wpp/ofc'
+
+async function criarMonitor() {
+  const { state, saveCreds } = await useMultiFileAuthState('./sessao-monitor-1')
+  const monitor = makeStone({ auth: state })
+  monitor.ev.on('creds.update', saveCreds)
+  return monitor
+}
+await sock.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'alert',
+  monitorFactories: [{
+    create: criarMonitor,
+    phoneNumber: '5511999999999', // use seu número com DDI
+    onPairingCode({ code }) {
+      console.log('Vincule no WhatsApp do titular:', code)
+    }
+  }]
+})
+```
+
+Não há pareamento sem o usuário confirmar o código no telefone.
+Cada monitor precisa de pasta de credenciais distinta. Se houver logout,
+a reconexão para, evitando tentativas silenciosas.
+
 A função `criarMonitorComSessaoSalva` é criada **pela sua aplicação**;
 ela não é uma exportação da Stone. Ela deve utilizar suas próprias credenciais
 de WhatsApp, do mesmo modo que você cria a sessão principal. Cada número
