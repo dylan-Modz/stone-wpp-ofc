@@ -253,7 +253,7 @@ test('factory de monitor pode recriar socket após queda e encerra no disable', 
   assert.equal(first.monitorCount, 1)
   assert.equal(count, 1)
   monitors[0].ev.emit('connection.update', { connection: 'close', lastDisconnect: { error: { output: { statusCode: 500 } } } })
-  await new Promise(resolve => setTimeout(resolve, 1050))
+  await new Promise(resolve => setTimeout(resolve, 1200))
   assert.equal(count, 2)
   assert.equal((await api.groupProtection(jid)).monitorCount, 1)
   await api.groupProtection(jid, { enabled: false })
@@ -276,4 +276,45 @@ test('integração de recibos e PDO não cria patch criptográfico', async () =>
   assert.match(source, /'group-protection.receipt'/)
   assert.match(source, /'group-protection.pdo'/)
   assert.match(source, /return sendPeerDataOperationMessage\(pdoMessage\)/)
+})
+
+test('pareamento auxiliar exige callback do titular e bloqueia relogin após logout', async () => {
+  const { socket } = mockSocket()
+  const ev = new EventEmitter()
+  const codes = []
+  let calls = 0
+  const api = createGroupProtectionMethods(socket)
+  await api.groupProtection(jid, {
+    monitorFactories: [{
+      create: async () => {
+        calls++
+        return {
+          ev, authState: { creds: { registered: false } },
+          requestPairingCode: async number => number === '5511999999999' ? 'SEGURO123' : ''
+        }
+      },
+      phoneNumber: '5511999999999',
+      onPairingCode: ({ code }) => codes.push(code)
+    }]
+  })
+  assert.deepEqual(codes, ['SEGURO123'])
+  ev.emit('connection.update', { connection: 'close', lastDisconnect: { error: { output: { statusCode: 401 } } } })
+  assert.equal((await api.groupProtection(jid)).monitorCount, 0)
+  await tick()
+  assert.equal(calls, 1)
+})
+
+test('par de PN/LID com dígitos iguais não é tratado como mesma identidade', async () => {
+  const { socket, ev, actions } = mockSocket()
+  const api = createGroupProtectionMethods(socket)
+  await api.groupProtection(jid, { mode: 'remove' })
+  for (let i = 1; i <= 3; i++) {
+    ev.emit('messages.upsert', {
+      type: 'notify',
+      messages: [msg(i, { requestPaymentMessage: { amount: 1 } }, '111@lid')]
+    })
+  }
+  await tick()
+  await tick()
+  assert.equal(actions.filter(x => x[0] === 'remove').length, 0)
 })
