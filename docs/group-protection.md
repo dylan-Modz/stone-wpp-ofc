@@ -1,75 +1,171 @@
 # groupProtection — proteção de grupos na Stone WPP
 
-A função `sock.groupProtection(jid, options)` ativa detecção opcional de flood,
-mensagens de pagamento em rajada, sinais de falha de descriptografia e mensagens
-de pagamento citadas. É integrada à Stone e não depende de patches em `node_modules`.
+A API nativa `sock.groupProtection(jid, options)` usa a recepção da própria Stone e
+não modifica o protocolo de criptografia. Detecta rajadas de mensagens de pagamento
+e flood, observa falhas de descriptografia, recibos de retry e solicitações PDO de
+recuperação. **Nenhuma dessas observações é garantia de ataque ou de mensagem recuperada.**
 
-## Ativar, consultar e desativar
+## 1. Ativar sem risco
 
 ```js
-// Modo seguro (padrão): apenas emite eventos.
-await sock.groupProtection('123456@g.us', { enabled: true })
-console.log(await sock.groupProtection('123456@g.us'))
-await sock.groupProtection('123456@g.us', { enabled: false })
+await sock.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'alert',
+  observeInvisible: true,
+  observeReceipts: true
+})
+
+sock.ev.on('group-protection.alert', alerta => {
+  console.log(alerta.jid, alerta.reason, alerta.severity, alerta.verified)
+})
 ```
 
-## Modo automático (opcional)
+O modo `alert` não apaga conteúdo e não remove pessoas. Use-o em um grupo próprio
+para calibrar os limites antes de optar por moderação automática.
+
+## 2. Moderação automática e imunidade
 
 ```js
-await sock.groupProtection('123456@g.us', {
+await sock.groupProtection(grupoJid, {
   enabled: true,
   mode: 'protect',
   paymentBurst: 3,
   messageBurst: 14,
   windowMs: 8000,
   lockMs: 12000,
-  editNotice: true // Edita aviso do próprio bot após a moderação
-})
-
-sock.ev.on('group-protection.alert', (alert) => {
-  console.log('Stone Protection:', alert.reason, alert.severity, alert.jid)
-})
-
-sock.ev.on('group-protection.action', (result) => {
-  console.log('Ação executada:', result)
+  editNotice: true,
+  immunity: [donoJid, moderadorJid]
 })
 ```
 
-Modos:
-- `alert` (padrão): apenas alerta, sem excluir mensagens ou participantes.
-- `delete`: tenta apagar a mensagem de uma rajada comprovada.
-- `remove`: tenta apagar a mensagem e remover o participante identificado.
-- `protect`: também fecha temporariamente o grupo e reabre após `lockMs`.
+| Opção | Significado |
+| --- | --- |
+| `mode: 'alert'` | Só registra alertas (padrão) |
+| `mode: 'delete'` | Tenta excluir a mensagem de rajada verificada |
+| `mode: 'remove'` | Tenta excluir e remover participante |
+| `mode: 'protect'` | Tenta fechar temporariamente, excluir e remover |
+| `paymentBurst` | Número de mensagens de pagamento por remetente na janela (2–30) |
+| `messageBurst` | Número de mensagens por remetente na janela (3–100) |
+| `windowMs` | Janela de observação em milissegundos (1.000–60.000) |
+| `lockMs` | Intervalo de fechamento do grupo (3.000–120.000 ms) |
+| `immunity` | Até 200 JIDs que jamais serão removidos automaticamente |
+| `editNotice` | Edita **somente avisos enviados pelo bot**, nunca mensagens de terceiros |
+| `observeReceipts` | Observa recibos de retry (padrão: true) |
+| `receiptBurst` | Volume que gera alerta leve de recibos (3–50) |
+| `historyLimit` | Registros recentes mantidos por grupo (20–500) |
 
-A Stone verifica se o bot é administrador e **não tenta remover administradores
-ou pessoas cujo JID não pôde ser confirmado no grupo**. Erros de descriptografia
-e conteúdo citado são indícios, não provas: **não causam expulsão automática**.
+O bot precisa ser administrador. Pessoas sem identidade confirmada, administradores
+e JIDs imunes não são expulsos. **PN e LID são tipos diferentes de identificador**:
+inclua as formas conhecidas na imunidade se aplicável. Rajadas de mensagens legítimas
+podem parecer ataques; ajuste os limites conforme o grupo.
 
-## Monitoramento auxiliar
+## 3. Recibos ocultos e PDO já existente
+
+A Stone já possui `requestPlaceholderResend`, retry e PDO. A proteção acrescenta
+**telemetria passiva** ao caminho nativo, sem duplicar solicitações:
 
 ```js
-// monitor1, monitor2 e monitor3 são sockets Stone conectados separadamente.
-// Devem participar do grupo e cada um exige autenticação própria.
-await sock.groupProtection('123456@g.us', {
-  enabled: true,
-  mode: 'alert',
-  monitors: [monitor1, monitor2, monitor3]
+sock.ev.on('group-protection.pdo-observed', ({ jid, messageId, status }) => {
+  console.log('PDO do grupo:', jid, messageId, status)
+})
+
+sock.ev.on('group-protection.alert', alerta => {
+  if (alerta.reason === 'receipt-suspected') {
+    console.log('Rajada de retry observada — sem expulsão automática')
+  }
 })
 ```
 
-É possível usar até **três monitores adicionais**. Eventos duplicados da mesma
-mensagem são consolidados. Nenhum número é conectado ou pareado automaticamente.
-Se o WhatsApp não entregar uma mensagem a nenhuma sessão, ela não pode ser
-recuperada por esta API. O mecanismo de retry/PDO nativo da Stone não é alterado.
+`group-protection.receipt` é o evento bruto com `remoteJid`, `participant`,
+`messageId` e `type: 'retry'`. `group-protection.pdo` informa eventos nativos
+`requested`, `resolved` ou `timeout`; `group-protection.pdo-observed`
+exibe apenas os PDO dos grupos ativados. Recebimentos de retry e falhas de
+descriptografia são **sinais técnicos**, não prova de intenção maliciosa.
+Um pedido PDO pode falhar, expirar ou retornar sem recuperar o conteúdo.
 
-## Limites e observações
+## 4. Salvar configurações e consultar histórico
 
-- Exige Node.js 20+ e a Stone WPP com esta implementação.
-- O aviso editável é enviado pelo bot. Mensagens de outras pessoas não podem ser reescritas como se fossem delas; a técnica do ZIP não é uma API de edição confiável.
-- O modo ativo vale só para a sessão do socket. Configure novamente após reiniciar o bot.
-- O comportamento depende das permissões do bot e do protocolo do WhatsApp.
-- Uma mensagem de pagamento isolada é registrada como alerta leve; a ação automática
-  só é considerada após rajada verificada dentro da janela configurada.
-- O sistema não reescreve mensagens em nome de terceiros, não simula provas e
-  não promete bloquear todos os métodos de bypass.
-- Faça testes em grupos próprios antes de usar ações automáticas em produção.
+Use `createStoneStore` com JSON ou SQLite. O armazenamento é **opcional** e
+precisa ser informado explicitamente. Exemplo:
+
+```js
+import { createStoneStore } from '@stone-wpp/ofc'
+
+const store = await createStoneStore({ type: 'json', path: './dados/protecao.json' })
+await sock.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'alert',
+  store,
+  immunity: [donoJid],
+  historyLimit: 100
+})
+
+// Após reiniciar o bot, com o mesmo store:
+await sock.groupProtection(grupoJid, { restore: true, store })
+
+// Consultar últimos 30 registros, sem dados de mensagens:
+const status = await sock.groupProtection(grupoJid, { getHistory: true, limit: 30 })
+console.log(status.history)
+
+// Desativar e salvar o estado desligado:
+await sock.groupProtection(grupoJid, { enabled: false, store })
+```
+
+O histórico salva somente grupo, participante, tipo de alerta/ação, situação de
+moderação e horário. Não armazena automaticamente texto de mensagens, ciphertext
+ou chaves da sessão. A proteção só restaura grupos que o seu aplicativo indicar;
+o store **não inicia sessões nem descobre todos os grupos sozinho**.
+
+## 5. Até três monitores complementares com reconexão
+
+`monitors` aceita sockets Stone já criados. Para **recriação automática**
+de um monitor após queda temporária use `monitorFactories`: a função factory
+deve criar o socket autenticado e carregar/persistir sua própria sessão.
+
+```js
+await sock.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'alert',
+  monitorFactories: [
+    async ({ attempt }) => criarMonitorComSessaoSalva('auxiliar1', attempt),
+    async ({ attempt }) => criarMonitorComSessaoSalva('auxiliar2', attempt)
+  ],
+  monitorReconnectMs: 3000
+})
+
+sock.ev.on('group-protection.monitor', ({ index, status, error }) => {
+  console.log('Monitor:', index, status, error || '')
+})
+```
+
+A função `criarMonitorComSessaoSalva` é criada **pela sua aplicação**;
+ela não é uma exportação da Stone. Ela deve utilizar suas próprias credenciais
+de WhatsApp, do mesmo modo que você cria a sessão principal. Cada número
+auxiliar precisa ser autenticado **com autorização do proprietário** e
+participar do grupo. Não há pareamento silencioso: em caso de logout (401),
+a proteção não tenta conectar novamente sem novo vínculo.
+
+`monitors` e `monitorFactories` juntos aceitam **até três** sessões adicionais.
+A Stone deduplica IDs recebidos de mais de uma sessão e observa apenas os
+grupos em que o monitor foi configurado. Uma mensagem omitida pelo WhatsApp
+para todas as sessões continua invisível.
+
+## 6. Status, erros e testes
+
+```js
+const state = await sock.groupProtection(grupoJid)
+console.log(state.enabled, state.mode, state.monitorCount)
+console.log(state.alerts, state.actions)
+```
+
+Eventos de acompanhamento:
+- `group-protection.alert` — motivo, gravidade, evidência limitada e origem.
+- `group-protection.action` — tentativa e resultado da moderação.
+- `group-protection.monitor` — monitor conectado, erro ou logout.
+- `group-protection.pdo-observed` — telemetria de recuperação de placeholder.
+
+Testes locais: `npm test`. Ative inicialmente `mode: 'alert'` em grupos controlados,
+verifique casos normais (pagamento legítimo, perda de conexão, um participante
+muito ativo) e só depois considere `delete`, `remove` ou `protect`.
+A proteção não falsifica mensagens atribuídas a terceiros, não garante
+detectar todos os bypasses e não substitui as regras oficiais do WhatsApp.
