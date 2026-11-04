@@ -100,7 +100,28 @@ await stone.groupProtection(grupoJid, { enabled: false })
 
 Os modos são `alert` (apenas alertas), `delete` (tenta apagar), `remove` (tenta apagar e remover participante) e `protect` (também fecha temporariamente o grupo). Ações administrativas exigem que o bot seja administrador e **não são disparadas por simples falha de descriptografia**.
 
-Para adicionar até três monitores complementares, passe sockets **já conectados e autenticados** em `monitors: [monitor1, monitor2, monitor3]`. Sessões adicionais não são pareadas automaticamente.
+Agora a proteção também oferece **lista de imunidade** (`immunity`), **telemetria de recibos de retry e PDO**, **histórico de incidentes** e **persistência opcional** com Stone Store. O `PDO` e a descriptografia continuam sendo os mecanismos originais da Stone, sem alteração das chaves.
+
+Para adicionar até três monitores complementares, use `monitors: [monitor1, monitor2, monitor3]` ou `monitorFactories` para criar/reconectar sessões extras após queda. O pareamento exige autorização: o código pode ser entregue ao titular usando `onPairingCode`, mas nunca é confirmado automaticamente em nome dele.
+
+```js
+import { createStoneStore } from '@stone-wpp/ofc'
+const store = await createStoneStore({ type: 'json', path: './dados/protecao.json' })
+await stone.groupProtection(grupoJid, {
+  enabled: true,
+  mode: 'alert',
+  immunity: [administradorJid],
+  observeReceipts: true,
+  receiptBurst: 6,
+  store
+})
+// Após reiniciar com a mesma base de dados:
+await stone.groupProtection(grupoJid, { restore: true, store })
+const { history } = await stone.groupProtection(grupoJid, { getHistory: true })
+console.log(history)
+```
+
+Os registros de histórico contêm somente metadados sanitizados, sem copiar texto ou ciphertext das mensagens. Recibos e PDO são apenas sinais técnicos: não autorizam expulsão automática.
 
 ### ✏️ Editar mensagens da própria conta
 
