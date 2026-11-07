@@ -2,6 +2,10 @@ import type { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '../T
 import type { Label } from '../Types/Label.js'
 
 export interface StoneAdditionalMethods {
+  /** Resolve o vínculo PN/LID conhecido pela sessão. null significa não resolvido. */
+  resolveJidMapping(jid: string): Promise<{ input: string; pn: string | null; lid: string | null; resolved: boolean }>;
+  /** Consulta se existe uma sessão Signal para o JID sem alterar suas chaves. */
+  inspectSignalSession(jid: string): Promise<{ jid: string; exists: boolean }>;
   /** Edita o texto de mensagem enviada pelo próprio bot; não edita mensagens de terceiros. */
   editMessage(jid: string, messageKey: WAMessageKey, text: string): Promise<WAMessage | undefined>;
   /** Pesquisa username pelo USync. Não retorna números de telefone. */

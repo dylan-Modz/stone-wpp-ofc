@@ -18,7 +18,7 @@
 
 <br>
 
-<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.6-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.6 do código no GitHub"></a>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.7-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.7 do código no GitHub"></a>
 <img src="https://img.shields.io/badge/NODE.JS-20%2B-111820?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20 ou superior">
 <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&labelColor=111820" alt="Licença MIT">
 
@@ -61,6 +61,25 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 | ⚙️ **Outros módulos** | API, DataLayer (armazenamento), Extensions (extensões) e funcionalidades relacionadas. |
 
 > **Importante:** a Stone WPP está em desenvolvimento. Consulte a documentação para conhecer os recursos disponíveis e suas limitações. Nem todas as funções planejadas estão implementadas.
+
+---
+
+## 🆕 Stone WPP 1.0.7 — estabilidade e diagnóstico
+
+- **Mídias:** nova tentativa pelo link original quando o caminho direto retorna HTTP 403, 404 ou 410. Chave ausente agora gera erro claro, sem prometer descriptografar conteúdo indisponível.
+- **Reenvio de mídia:** validação de chave e limite de espera de 60 segundos por padrão (ou `defaultQueryTimeoutMs`), evitando espera ilimitada.
+- **Identidades LID/PN:** trata respostas USync com números específicos de dispositivo sem provocar erro ao percorrer os dispositivos.
+- **Diagnóstico:** os métodos `resolveJidMapping(jid)` e `inspectSignalSession(jid)` consultam os dados da sessão, sem recriar chaves.
+- **Compatibilidade:** comandos e configurações existentes continuam com os nomes anteriores.
+
+```js
+// Diagnósticos opcionais; não alteram chaves nem enviam mensagens.
+const mapping = await stone.resolveJidMapping('5511999999999@s.whatsapp.net')
+const session = await stone.inspectSignalSession('5511999999999@s.whatsapp.net')
+console.log({ mapping, session })
+```
+
+**Limites:** a recuperação de mídia depende de links/chaves válidos; não recria mídia expirada nem garante recuperação de visualização única. Chamadas de voz e vídeo ainda não fazem parte desta versão. Publicação no registro npm é uma etapa independente do código no GitHub.
 
 ---
 
