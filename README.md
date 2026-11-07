@@ -19,11 +19,17 @@
 
 ### Novidades
 
+- **Motor opcional de chamadas:** `stone.calls` permite iniciar chamadas individuais e em grupo, atender, entrar em chamadas conhecidas, sair e encerrar.
+- **Áudio em ligações:** `stone.calls.playAudio(callId, caminho)` reproduz MP3/arquivos locais usando FFmpeg, e `feedLiveAudio` transmite PCM mono 16 kHz.
+- **Eventos de chamadas:** QR da sessão de chamadas, chamada recebida, estado, participantes, fim e erros.
+
 - **Convites para chamadas em grupo:** o novo método `sendGroupCallInvite(groupJid, options)` gera um link de chamada de voz ou vídeo no WhatsApp e envia o convite diretamente ao grupo.
 - **Diagnóstico de identidades:** `resolveJidMapping(jid)` consulta o vínculo conhecido entre número (PN) e LID.
 - **Diagnóstico de sessões:** `inspectSignalSession(jid)` verifica se há uma sessão Signal registrada, sem modificar chaves.
 
 ### Correções e melhorias
+
+- **Isolamento:** motor de ligações usa sessão vinculada separada da conexão principal do bot, preservando suas chaves e comandos.
 
 - **Recuperação de mídia:** tenta a URL original quando o caminho direto retorna HTTP 403, 404 ou 410.
 - **Reenvio de mídia:** valida chaves antes da solicitação e limita a espera por resposta.
@@ -46,6 +52,25 @@ await stone.sendGroupCallInvite('120363000000000000@g.us', {
 ```
 
 **Importante:** o recurso envia um convite com link, mas **não inicia uma chamada tocando para todos**, nem transmite áudio ou vídeo pelo bot. Depende de o WhatsApp gerar o link e de os participantes entrarem na chamada.
+
+
+### Exemplo: chamada de voz com música
+
+```js
+// A sessão de chamadas é um dispositivo vinculado independente.
+stone.calls.on('qr', ({ qr }) => console.log('QR da sessão de chamadas:', qr))
+await stone.calls.connect({ authPath: './auth/stone-calls.sqlite' })
+
+// Convide participantes explícitos para tocar seus celulares.
+const callId = await stone.calls.startGroupCall('120363000000000000@g.us', [
+  '5511999999999@s.whatsapp.net'
+])
+
+// Começa quando houver participante e a chamada estiver ativa.
+await stone.calls.playAudio(callId, './musica.mp3')
+```
+
+**Limites:** a sessão de chamadas deve ser pareada à parte e precisa de dependências VoIP opcionais, transportes nativos compatíveis e FFmpeg para arquivos de áudio. `joinCall` só entra em chamadas conhecidas pela sessão. A transmissão de vídeo não está implementada no módulo. Valide numa conta de testes; testes automatizados não garantem conectividade real.
 
 **Status da publicação:** as mudanças estão no código-fonte do GitHub. A disponibilidade da versão 1.0.7 no npm precisa ser confirmada separadamente.
 
