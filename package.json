@@ -26,11 +26,12 @@
     "Protocol/**/*",
     "engine-requirements.js",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "!lib/**/*.test.mjs"
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test lib/Socket/*.test.mjs lib/Signal/*.test.mjs",
     "prepublishOnly": "npm test"
   },
   "dependencies": {
