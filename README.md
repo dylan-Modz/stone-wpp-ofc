@@ -17,63 +17,32 @@
 
 ## Stone WPP 1.0.7
 
-### Novidades
+### Funções adicionadas
 
-- **Motor opcional de chamadas:** `stone.calls` permite iniciar chamadas individuais e em grupo, atender, entrar em chamadas conhecidas, sair e encerrar.
-- **Áudio em ligações:** `stone.calls.playAudio(callId, caminho)` reproduz MP3/arquivos locais usando FFmpeg, e `feedLiveAudio` transmite PCM mono 16 kHz.
-- **Eventos de chamadas:** QR da sessão de chamadas, chamada recebida, estado, participantes, fim e erros.
-
-- **Convites para chamadas em grupo:** o novo método `sendGroupCallInvite(groupJid, options)` gera um link de chamada de voz ou vídeo no WhatsApp e envia o convite diretamente ao grupo.
-- **Diagnóstico de identidades:** `resolveJidMapping(jid)` consulta o vínculo conhecido entre número (PN) e LID.
-- **Diagnóstico de sessões:** `inspectSignalSession(jid)` verifica se há uma sessão Signal registrada, sem modificar chaves.
+- **`stone.calls.startCall(options)`** — inicia uma chamada de voz ou vídeo para um contato ou inicia uma chamada em grupo com os participantes informados. Retorna o identificador da chamada.
+- **`stone.calls.acceptCall(callId)`** — aceita uma chamada recebida.
+- **`stone.calls.rejectCall(callId)`** — recusa uma chamada recebida.
+- **`stone.calls.joinCall(callId)`** — entra novamente em uma chamada de grupo conhecida pela sessão, quando ela permite a entrada.
+- **`stone.calls.leaveCall(callId)`** — sai de uma chamada em grupo sem encerrar a participação das outras pessoas.
+- **`stone.calls.endCall(callId)`** — encerra a participação da conta na chamada.
+- **`stone.calls.loadAudio(callId, path)`** — carrega um arquivo de áudio para transmissão durante a chamada.
+- **`stone.calls.setExternalAudioMode(callId, enabled)`** — controla o uso de áudio fornecido externamente.
+- **`stone.calls.feedLiveAudio(callId, pcm)`** — alimenta a chamada com amostras de áudio PCM mono de 16 kHz.
+- **`stone.calls.getCall(callId)` / `getCalls()`** — consulta as chamadas acompanhadas pela sessão.
+- **`stone.calls.setMute(callId, muted)`** — silencia ou reativa o envio de áudio.
+- **`stone.sendGroupCallInvite(groupJid, options)`** — cria um link de participação e o envia a um grupo.
+- **`stone.resolveJidMapping(jid)`** — consulta o vínculo conhecido entre identificadores PN e LID.
+- **`stone.inspectSignalSession(jid)`** — consulta a existência de sessão criptográfica sem alterar as chaves.
 
 ### Correções e melhorias
 
-- **Isolamento:** motor de ligações usa sessão vinculada separada da conexão principal do bot, preservando suas chaves e comandos.
+- Recuperação de mídia por URL alternativa em respostas HTTP 403, 404 e 410, quando disponível.
+- Validação das chaves antes de solicitar reenvio de mídia e limitação do tempo de espera.
+- Tratamento de identificadores de dispositivos nas respostas de mapeamento PN/LID.
+- `startCall()` também aceita um objeto de opções; `loadAudio()` utiliza o nome correspondente à operação. O atalho `playAudio()` continua disponível por compatibilidade.
 
-- **Recuperação de mídia:** tenta a URL original quando o caminho direto retorna HTTP 403, 404 ou 410.
-- **Reenvio de mídia:** valida chaves antes da solicitação e limita a espera por resposta.
-- **Identificação LID/PN:** trata respostas do USync com identificação por dispositivo sem falhar durante a conversão.
-- **Compatibilidade:** preserva as assinaturas dos métodos e os comandos existentes.
+**Disponibilidade:** o módulo de chamadas é opcional, usa sessão de autenticação separada e depende de componentes de transporte e codificação de áudio. Chamadas reais ainda exigem validação em aparelhos. A publicação no npm é independente do GitHub.
 
-### Novo recurso: convite de chamada em grupo
-
-```js
-// Convite para chamada de voz.
-await stone.sendGroupCallInvite('120363000000000000@g.us', {
-  type: 'audio'
-})
-
-// Convite para chamada de vídeo, com mensagem personalizada.
-await stone.sendGroupCallInvite('120363000000000000@g.us', {
-  type: 'video',
-  text: 'Entrem na chamada do grupo!'
-})
-```
-
-**Importante:** `sendGroupCallInvite()` apenas envia um link e não toca nos celulares. Para iniciar a ligação e transmitir áudio, utilize o motor opcional `stone.calls` com sessão própria, conforme o exemplo abaixo.
-
-
-### Exemplo: chamada de voz com música
-
-```js
-// A sessão de chamadas é um dispositivo vinculado independente.
-stone.calls.on('qr', ({ qr }) => console.log('QR da sessão de chamadas:', qr))
-await stone.calls.connect({ authPath: './auth/stone-calls.sqlite' })
-
-// Convide participantes explícitos para tocar seus celulares.
-const callId = await stone.calls.startGroupCall('120363000000000000@g.us', [
-  '5511999999999@s.whatsapp.net'
-])
-
-// Começa quando houver participante e a chamada estiver ativa.
-await stone.calls.playAudio(callId, './musica.mp3')
-```
-
-**Limites:** a sessão de chamadas deve ser pareada à parte e precisa de dependências VoIP opcionais, transportes nativos compatíveis e FFmpeg para arquivos de áudio. `joinCall` só entra em chamadas conhecidas pela sessão. A transmissão de vídeo não está implementada no módulo. Valide numa conta de testes; testes automatizados não garantem conectividade real.
-
-**Status da publicação:** as mudanças estão no código-fonte do GitHub. A disponibilidade da versão 1.0.7 no npm precisa ser confirmada separadamente.
-
-[Documentação oficial](https://stone-wpp.squareweb.app/) · [Código-fonte](https://github.com/dylan-Modz/stone-wpp-ofc)
+[Documentação das funções](https://stone-wpp.squareweb.app/#/features/chamadas) · [Código-fonte](https://github.com/dylan-Modz/stone-wpp-ofc)
 
 <sub>Stone WPP · Dylan Modz</sub>

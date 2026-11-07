@@ -23,6 +23,7 @@ export interface StoneCalls {
   connect(options: StoneCallConnectionOptions): Promise<{ connected: true; sessionId: string }>
   disconnect(): Promise<void>
   startCall(peerJid: string, options?: { isVideo?: boolean }): Promise<string>
+  startCall(options: { peerJid: string; isVideo?: boolean } | { groupJid: string; participants: StoneCallParticipant[]; isVideo?: boolean }): Promise<string>
   startGroupCall(groupJid: string, participants: StoneCallParticipant[], options?: { isVideo?: boolean }): Promise<string>
   acceptCall(callId: string): Promise<void>
   rejectCall(callId: string): Promise<void>
@@ -32,6 +33,9 @@ export interface StoneCalls {
   getCall(callId: string): StoneCallInfo | null
   getCalls(): readonly StoneCallInfo[]
   setMute(callId: string, muted: boolean): void
+  /** Carrega o arquivo de áudio informado para a chamada; não se limita a músicas. */
+  loadAudio(callId: string, path: string, options?: { timeoutMs?: number }): Promise<void>
+  /** Atalho de compatibilidade para loadAudio. */
   playAudio(callId: string, path: string, options?: { timeoutMs?: number }): Promise<void>
   setExternalAudioMode(callId: string, enabled?: boolean): void
   feedLiveAudio(callId: string, pcmChunk: Float32Array): number

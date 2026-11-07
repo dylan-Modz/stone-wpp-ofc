@@ -87,3 +87,15 @@ test('espera por áudio é cancelada quando a sessão é desconectada', async ()
   await c.disconnect()
   await assert.rejects(pending, /desconectada/)
 })
+
+test('nomes públicos startCall(options) e loadAudio() seguem o propósito da função', async () => {
+  const c = calls()
+  await c.connect({ authPath: '/tmp/stone-calls-signatures.sqlite' })
+  const id = await c.startCall({ groupJid: '123@g.us', participants: [{ jid: '123@lid' }] })
+  assert.equal(id, 'call-1')
+  assert.equal(lastClient.started[0].groupJid, '123@g.us')
+  lastClient.calls.get(id).stateData.state = 'active'
+  await c.loadAudio(id, '/tmp/voice.wav')
+  assert.deepEqual(lastClient.played, [['call-1', '/tmp/voice.wav']])
+  await c.disconnect()
+})
