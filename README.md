@@ -51,7 +51,7 @@ await stone.sendGroupCallInvite('120363000000000000@g.us', {
 })
 ```
 
-**Importante:** o recurso envia um convite com link, mas **não inicia uma chamada tocando para todos**, nem transmite áudio ou vídeo pelo bot. Depende de o WhatsApp gerar o link e de os participantes entrarem na chamada.
+**Importante:** `sendGroupCallInvite()` apenas envia um link e não toca nos celulares. Para iniciar a ligação e transmitir áudio, utilize o motor opcional `stone.calls` com sessão própria, conforme o exemplo abaixo.
 
 
 ### Exemplo: chamada de voz com música
