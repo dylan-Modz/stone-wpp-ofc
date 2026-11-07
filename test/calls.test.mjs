@@ -3,99 +3,76 @@ import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
 import { createStoneCalls } from '../lib/Socket/stone-calls.js'
 
-let lastClient
-class FakeClient extends EventEmitter {
-  constructor(opts) {
-    super()
-    lastClient = this
-    this.options = opts
-    this.calls = new Map()
-    this.started = []
-    this.played = []
-    this.voip = {
-      startCall: async options => {
-        this.started.push(options)
-        this.calls.set('call-1', { callId: 'call-1', stateData: { state: 'ringing' } })
-        return 'call-1'
-      },
-      getCall: id => this.calls.get(id) ?? null,
-      getCalls: () => [...this.calls.values()],
-      acceptCall: async id => id,
-      rejectCall: async id => id,
-      joinCall: async id => id,
-      leaveCall: async id => id,
-      endCall: async id => id,
-      setMute: (id, muted) => [id, muted],
-      loadAudio: async (id, path) => { this.played.push([id, path]) },
-      setExternalAudioMode: () => {},
-      feedLiveAudio: (_, pcm) => pcm.length,
-      getLiveBufferMs: () => 0,
-      getFeedWatermarksMs: () => ({ pauseMs: 200, resumeMs: 50 })
+function fakeStone() {
+  const ev = new EventEmitter()
+  const operations = []
+  const socket = {
+    ev,
+    rejectCall: async (id, from) => { operations.push(['reject', id, from]) },
+    createCallLink: async (type) => {
+      operations.push(['link', type])
+      return 'CallToken123'
+    },
+    sendGroupCallInvite: async (jid, opts) => {
+      operations.push(['invite', jid, opts])
+      return { groupJid: jid, url: 'https://call.whatsapp.com/voice/CallToken123' }
     }
   }
-  async connect() {
-    this.emit('auth_qr', { qr: 'test-qr' })
-    this.emit('connection', { status: 'connected' })
-  }
-  async disconnect() { this.closed = true }
+  return { socket, ev, operations }
 }
-const calls = () => createStoneCalls({
-  engineLoader: async () => ({
-    createStore: x => x,
-    createPinoLogger: async () => ({}),
-    createSqliteStore: x => x,
-    voipPlugin: x => x,
-    WaClient: FakeClient
-  })
+
+test('usa eventos da conexão Stone e mantém identificador da chamada', () => {
+  const { socket, ev } = fakeStone()
+  const calls = createStoneCalls(socket)
+  const events = []
+  calls.on('incoming', c => events.push(c))
+  ev.emit('call', [{
+    id: 'offer-1', status: 'offer',
+    chatId: '120363000@g.us', from: '5511999999999@s.whatsapp.net',
+    isGroup: true, isVideo: false, groupJid: '120363000@g.us'
+  }])
+  assert.equal(events.length, 1)
+  assert.equal(events[0].callId, 'offer-1')
+  assert.equal(events[0].stateData.state, 'incoming_ringing')
+  assert.equal(calls.getCalls().length, 1)
+  assert.equal(calls.getCall('offer-1').groupJid, '120363000@g.us')
+  assert.equal(calls.getCapabilities().sharedSocket, true)
+  calls.destroy()
+  assert.equal(ev.listenerCount('call'), 0)
 })
 
-test('sessão de chamadas usa QR próprio e inicia chamada em grupo', async () => {
-  const c = calls()
-  const qrs = []
-  c.on('qr', ev => qrs.push(ev.qr))
-  await c.connect({ authPath: '/tmp/stone-test-call.sqlite' })
-  assert.deepEqual(qrs, ['test-qr'])
-  assert.throws(() => c.startGroupCall('123@g.us', []), /participante/)
-  const id = await c.startGroupCall('123@g.us', ['123@lid'])
-  assert.equal(id, 'call-1')
-  assert.deepEqual(lastClient.started[0], {
-    groupJid: '123@g.us', participants: [{ jid: '123@lid' }], isVideo: false
-  })
-  const playback = c.playAudio(id, '/tmp/music.mp3')
-  lastClient.calls.get(id).stateData.state = 'active'
-  lastClient.emit('voip_call_state', lastClient.calls.get(id))
-  await playback
-  assert.deepEqual(lastClient.played, [['call-1', '/tmp/music.mp3']])
-  await c.disconnect()
-  assert.equal(lastClient.closed, true)
+test('recusa apenas chamada recebida válida e usa rejectCall do socket', async () => {
+  const { socket, ev, operations } = fakeStone()
+  const calls = createStoneCalls(socket)
+  await assert.rejects(calls.rejectCall('not-known'), /não encontrada/)
+  ev.emit('call', [{ id: 'one', status: 'offer', from: '5511111@s.whatsapp.net' }])
+  await calls.rejectCall('one')
+  assert.deepEqual(operations, [['reject', 'one', '5511111@s.whatsapp.net']])
+  assert.equal(calls.getCall('one').stateData.state, 'ended')
+  await assert.rejects(calls.rejectCall('one'), /não encontrada/)
+  calls.destroy()
 })
 
-test('valida JIDs, PCM e permissões da sessão', async () => {
-  const c = calls()
-  await c.connect({ authPath: '/tmp/stone-test-call.sqlite' })
-  assert.throws(() => c.feedLiveAudio('call', Buffer.from([])), /Float32Array/)
-  assert.throws(() => c.startGroupCall('123@g.us', ['badjid']), /JID/)
-  assert.equal(c.feedLiveAudio('call', new Float32Array(960)), 960)
-  await c.disconnect()
+test('cria links e entrega convites por métodos reais da Stone', async () => {
+  const { socket, operations } = fakeStone()
+  const calls = createStoneCalls(socket)
+  assert.equal(await calls.createCallLink('audio'), 'CallToken123')
+  const result = await calls.sendGroupCallInvite('120363000@g.us', { type: 'audio' })
+  assert.equal(result.groupJid, '120363000@g.us')
+  assert.equal(operations.length, 2)
+  await assert.rejects(calls.createCallLink('invalid'), /audio ou video/)
+  calls.destroy()
 })
 
-test('espera por áudio é cancelada quando a sessão é desconectada', async () => {
-  const c = calls()
-  await c.connect({ authPath: '/tmp/stone-test-call.sqlite' })
-  const id = await c.startCall('5511999999999@s.whatsapp.net')
-  const pending = c.playAudio(id, '/tmp/music.mp3')
-  await c.disconnect()
-  await assert.rejects(pending, /desconectada/)
-})
-
-test('nomes públicos startCall(options) e loadAudio() seguem o propósito da função', async () => {
-  const c = calls()
-  await c.connect({ authPath: '/tmp/stone-calls-signatures.sqlite' })
-  const id = await c.startCall({ groupJid: '123@g.us', participants: [{ jid: '123@lid' }] })
-  assert.equal(id, 'call-1')
-  assert.equal(lastClient.started[0].groupJid, '123@g.us')
-  lastClient.calls.get(id).stateData.state = 'active'
-  await c.loadAudio(id, '/tmp/voice.wav')
-  assert.deepEqual(lastClient.played, [['call-1', '/tmp/voice.wav']])
-  await c.disconnect()
+test('operações VoIP ainda ausentes falham explicitamente, sem simular áudio', () => {
+  const { socket } = fakeStone()
+  const calls = createStoneCalls(socket)
+  const capability = calls.getCapabilities()
+  assert.equal(capability.liveAudio, false)
+  assert.equal(capability.startCall, false)
+  for (const fn of ['startCall','acceptCall','joinCall','loadAudio','feedLiveAudio','setMute']) {
+    assert.throws(() => calls[fn](), error => error?.code === 'STONE_CALL_MEDIA_NOT_IMPLEMENTED')
+  }
+  calls.destroy()
+  assert.throws(() => calls.getCalls(), /encerrado/)
 })

@@ -1,45 +1,65 @@
-export type StoneCallParticipant = string | { jid: string; devices?: string[] }
+export type StoneCallEvent = 'incoming' | 'state' | 'ended'
 export interface StoneCallInfo {
   callId: string
-  isGroupCall?: boolean
-  groupJid?: string
-  peerJid?: string
-  canAccept?: boolean
-  stateData?: { state?: string; endReason?: string }
+  id: string
+  status: string
+  chatId: string | null
+  peerJid: string | null
+  from: string | null
+  groupJid: string | null
+  callerPn: string | null
+  isGroupCall: boolean
+  isVideo: boolean
+  date: Date
+  stateData: { state: string; endReason?: string }
 }
-export interface StoneCallConnectionOptions {
-  /** Arquivo SQLite EXCLUSIVO da sessão de chamadas. Nunca a sessão principal da Stone. */
-  authPath: string
-  sessionId?: string
-  maxConcurrentCalls?: number
-  logLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
-  autoAccept?: boolean
-  driver?: 'auto' | 'node' | 'better-sqlite3'
+export interface StoneCallCapabilities {
+  sharedSocket: true
+  incomingEvents: true
+  rejectIncomingCall: true
+  callLinks: true
+  groupCallInvites: boolean
+  startCall: false
+  acceptCall: false
+  joinCall: false
+  liveAudio: false
+  audioFiles: false
+  videoMedia: false
 }
 export interface StoneCalls {
-  on(event: string, handler: (...args: any[]) => void): StoneCalls
-  off(event: string, handler: (...args: any[]) => void): StoneCalls
-  once(event: string, handler: (...args: any[]) => void): StoneCalls
-  connect(options: StoneCallConnectionOptions): Promise<{ connected: true; sessionId: string }>
-  disconnect(): Promise<void>
-  startCall(peerJid: string, options?: { isVideo?: boolean }): Promise<string>
-  startCall(options: { peerJid: string; isVideo?: boolean } | { groupJid: string; participants: StoneCallParticipant[]; isVideo?: boolean }): Promise<string>
-  startGroupCall(groupJid: string, participants: StoneCallParticipant[], options?: { isVideo?: boolean }): Promise<string>
-  acceptCall(callId: string): Promise<void>
-  rejectCall(callId: string): Promise<void>
-  joinCall(callId: string): Promise<void>
-  leaveCall(callId: string): Promise<void>
-  endCall(callId: string): Promise<void>
+  on(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
+  once(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
+  off(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
+  getCapabilities(): StoneCallCapabilities
   getCall(callId: string): StoneCallInfo | null
-  getCalls(): readonly StoneCallInfo[]
-  setMute(callId: string, muted: boolean): void
-  /** Carrega o arquivo de áudio informado para a chamada; não se limita a músicas. */
-  loadAudio(callId: string, path: string, options?: { timeoutMs?: number }): Promise<void>
-  /** Atalho de compatibilidade para loadAudio. */
-  playAudio(callId: string, path: string, options?: { timeoutMs?: number }): Promise<void>
-  setExternalAudioMode(callId: string, enabled?: boolean): void
-  feedLiveAudio(callId: string, pcmChunk: Float32Array): number
-  getLiveBufferMs(callId: string): number
-  getFeedWatermarksMs(): { pauseMs: number; resumeMs: number }
+  getCalls(): StoneCallInfo[]
+  rejectCall(callId: string): Promise<void>
+  createCallLink(type?: 'audio' | 'video', event?: { startTime: number }, timeoutMs?: number): Promise<string | undefined>
+  sendGroupCallInvite(groupJid: string, options?: { type?: 'audio' | 'video'; text?: string }): Promise<{
+    groupJid: string
+    type: 'audio' | 'video'
+    url: string
+    message: import('../Types/index.js').WAMessage
+  }>
+  /** Ainda indisponível no motor nativo: requer negociação VoIP e transporte de mídia. */
+  startCall(...args: any[]): never
+  startGroupCall(...args: any[]): never
+  acceptCall(...args: any[]): never
+  joinCall(...args: any[]): never
+  leaveCall(...args: any[]): never
+  endCall(...args: any[]): never
+  loadAudio(...args: any[]): never
+  playAudio(...args: any[]): never
+  setExternalAudioMode(...args: any[]): never
+  feedLiveAudio(...args: any[]): never
+  getLiveBufferMs(...args: any[]): never
+  getFeedWatermarksMs(...args: any[]): never
+  setMute(...args: any[]): never
+  destroy(): void
 }
-export declare function createStoneCalls(options?: { engineLoader?: () => Promise<any> }): StoneCalls
+export declare function createStoneCalls(socket: {
+  ev: { on(event: 'call', handler: (calls: any) => void): any; off(event: 'call', handler: (calls: any) => void): any }
+  rejectCall(callId: string, from: string): Promise<void>
+  createCallLink(type: 'audio' | 'video', event?: { startTime: number }, timeoutMs?: number): Promise<string | undefined>
+  sendGroupCallInvite?: (jid: string, options?: { type?: 'audio' | 'video'; text?: string }) => Promise<any>
+}): StoneCalls

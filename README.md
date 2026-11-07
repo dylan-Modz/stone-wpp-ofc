@@ -17,32 +17,39 @@
 
 ## Stone WPP 1.0.7
 
-### Funções adicionadas
+### Novidades
 
-- **`stone.calls.startCall(options)`** — inicia uma chamada de voz ou vídeo para um contato ou inicia uma chamada em grupo com os participantes informados. Retorna o identificador da chamada.
-- **`stone.calls.acceptCall(callId)`** — aceita uma chamada recebida.
-- **`stone.calls.rejectCall(callId)`** — recusa uma chamada recebida.
-- **`stone.calls.joinCall(callId)`** — entra novamente em uma chamada de grupo conhecida pela sessão, quando ela permite a entrada.
-- **`stone.calls.leaveCall(callId)`** — sai de uma chamada em grupo sem encerrar a participação das outras pessoas.
-- **`stone.calls.endCall(callId)`** — encerra a participação da conta na chamada.
-- **`stone.calls.loadAudio(callId, path)`** — carrega um arquivo de áudio para transmissão durante a chamada.
-- **`stone.calls.setExternalAudioMode(callId, enabled)`** — controla o uso de áudio fornecido externamente.
-- **`stone.calls.feedLiveAudio(callId, pcm)`** — alimenta a chamada com amostras de áudio PCM mono de 16 kHz.
-- **`stone.calls.getCall(callId)` / `getCalls()`** — consulta as chamadas acompanhadas pela sessão.
-- **`stone.calls.setMute(callId, muted)`** — silencia ou reativa o envio de áudio.
-- **`stone.sendGroupCallInvite(groupJid, options)`** — cria um link de participação e o envia a um grupo.
-- **`stone.resolveJidMapping(jid)`** — consulta o vínculo conhecido entre identificadores PN e LID.
-- **`stone.inspectSignalSession(jid)`** — consulta a existência de sessão criptográfica sem alterar as chaves.
+- **Chamadas na conexão principal:** `stone.calls.on('incoming', handler)`, `on('state', handler)` e `on('ended', handler)` acompanham eventos recebidos pelo socket da Stone, sem outra sessão.
+- **Controle de chamadas:** `stone.calls.getCall(id)` e `getCalls()` consultam chamadas observadas. `stone.calls.rejectCall(id)` recusa ofertas recebidas.
+- **Links de chamada:** `stone.calls.createCallLink(type)` cria um token de participação; `stone.calls.sendGroupCallInvite(grupo, options)` envia o link ao grupo.
+- **Capacidades verificáveis:** `stone.calls.getCapabilities()` informa quais operações realmente estão disponíveis.
+- **Diagnósticos:** `resolveJidMapping(jid)` e `inspectSignalSession(jid)` consultam identidades e sessões conhecidas.
 
-### Correções e melhorias
+### Correções
 
-- Recuperação de mídia por URL alternativa em respostas HTTP 403, 404 e 410, quando disponível.
-- Validação das chaves antes de solicitar reenvio de mídia e limitação do tempo de espera.
-- Tratamento de identificadores de dispositivos nas respostas de mapeamento PN/LID.
-- `startCall()` também aceita um objeto de opções; `loadAudio()` utiliza o nome correspondente à operação. O atalho `playAudio()` continua disponível por compatibilidade.
+- **Mídia:** nova tentativa pela URL original em falhas HTTP 403, 404 ou 410; validação de chaves e limite de espera no reenvio.
+- **Identificação:** tratamento de JIDs por dispositivo nas respostas de mapeamento PN/LID.
+- **Independência:** removida a integração opcional com outra conexão de chamadas e respectivas dependências.
+- **Compatibilidade:** APIs de mensagens, grupos e os convites de chamadas existentes permanecem disponíveis.
 
-**Disponibilidade:** o módulo de chamadas é opcional, usa sessão de autenticação separada e depende de componentes de transporte e codificação de áudio. Chamadas reais ainda exigem validação em aparelhos. A publicação no npm é independente do GitHub.
+### Teste de chamadas recebidas
 
-[Documentação das funções](https://stone-wpp.squareweb.app/#/features/chamadas) · [Código-fonte](https://github.com/dylan-Modz/stone-wpp-ofc)
+```js
+stone.calls.on('incoming', async call => {
+  console.log('Chamada recebida:', call.callId, call.from)
+  // Para recusar, quando desejado:
+  // await stone.calls.rejectCall(call.callId)
+})
+
+stone.calls.on('state', call => {
+  console.log(call.callId, call.status)
+})
+
+console.log(stone.calls.getCapabilities())
+```
+
+**Limitação atual:** iniciar/atender/entrar em ligações e transmitir áudio ou vídeo **ainda não estão implementados nativamente**. Os métodos correspondentes recusam a operação com `STONE_CALL_MEDIA_NOT_IMPLEMENTED`; não simulam funcionamento real. Não há motor RTP/SRTP, codec e negociação de chamadas pronto. A versão do código no GitHub é 1.0.7; a publicação no npm é independente.
+
+[Documentação oficial](https://stone-wpp.squareweb.app/#/features/chamadas) · [Código-fonte](https://github.com/dylan-Modz/stone-wpp-ofc)
 
 <sub>Stone WPP · Dylan Modz</sub>
