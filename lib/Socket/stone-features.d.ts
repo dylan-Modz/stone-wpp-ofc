@@ -2,6 +2,13 @@ import type { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '../T
 import type { Label } from '../Types/Label.js'
 
 export interface StoneAdditionalMethods {
+  /** Envia link de participação em chamada ao grupo; não inicia mídia/VoIP nem toca os celulares. */
+  sendGroupCallInvite(groupJid: string, options?: { type?: 'audio' | 'video'; text?: string }): Promise<{
+    groupJid: string;
+    type: 'audio' | 'video';
+    url: string;
+    message: WAMessage;
+  }>;
   /** Resolve o vínculo PN/LID conhecido pela sessão. null significa não resolvido. */
   resolveJidMapping(jid: string): Promise<{ input: string; pn: string | null; lid: string | null; resolved: boolean }>;
   /** Consulta se existe uma sessão Signal para o JID sem alterar suas chaves. */
