@@ -8,6 +8,12 @@ export interface StoneCallInfo {
   from: string | null
   groupJid: string | null
   callerPn: string | null
+  callCreator: string | null
+  sourceJid: string | null
+  stanzaId: string | null
+  joinable: boolean
+  reRing: boolean
+  latencyMs: number | null
   isGroupCall: boolean
   isVideo: boolean
   date: Date
@@ -17,6 +23,8 @@ export interface StoneCallCapabilities {
   sharedSocket: true
   incomingEvents: true
   rejectIncomingCall: true
+  groupCallReject: boolean
+  incomingMetadata: true
   callLinks: true
   groupCallInvites: boolean
   startCall: false
@@ -60,6 +68,7 @@ export interface StoneCalls {
 export declare function createStoneCalls(socket: {
   ev: { on(event: 'call', handler: (calls: any) => void): any; off(event: 'call', handler: (calls: any) => void): any }
   rejectCall(callId: string, from: string): Promise<void>
+  sendNode?: (node: any) => Promise<void>
   createCallLink(type: 'audio' | 'video', event?: { startTime: number }, timeoutMs?: number): Promise<string | undefined>
   sendGroupCallInvite?: (jid: string, options?: { type?: 'audio' | 'video'; text?: string }) => Promise<any>
 }): StoneCalls

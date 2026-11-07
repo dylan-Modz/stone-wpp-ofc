@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
-    "test": "node --test lib/Socket/stone-calls.test.mjs lib/Socket/group-protection.test.mjs lib/Signal/stability-1.0.7.test.mjs",
+    "test": "node --test lib/Socket/stone-calls.test.mjs lib/Socket/group-protection.test.mjs lib/Signal/stability-1.0.7.test.mjs lib/Socket/stone-call-signaling.test.mjs",
     "prepublishOnly": "npm test"
   },
   "dependencies": {

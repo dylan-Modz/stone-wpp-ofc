@@ -109,6 +109,8 @@ console.log({ mapping, session })
 - **Segurança da mídia:** sinaliza ausência de chave e limita a espera por reenvios.
 - **Mapeamento PN/LID:** melhora o tratamento de JIDs com dispositivos nas respostas USync.
 - **Conexão única:** eventos e recusas de chamadas usam o socket principal da Stone.
+- **Chamadas em grupo:** recusa enviada ao endereço da própria chamada, com identificador de sinalização válido.
+- **Sinalização:** metadados de ofertas preservam criador, grupo e possibilidade de ingresso, sem expor chaves ou tokens de mídia.
 - **Compatibilidade:** preserva os recursos existentes de mensagens, grupos e canais.
 
 > **Distribuição:** a versão 1.0.7 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
