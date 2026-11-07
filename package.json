@@ -26,8 +26,7 @@
     "Protocol/**/*",
     "engine-requirements.js",
     "README.md",
-    "LICENSE",
-    "docs/**/*"
+    "LICENSE"
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
