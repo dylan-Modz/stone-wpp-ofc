@@ -64,6 +64,27 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 ---
 
+## 🧪 VoIP experimental — chamadas e áudio
+
+A biblioteca inclui um adaptador **experimental** de chamadas usando a conexão WhatsApp e o repositório Signal já autenticados pela Stone. O motor de mídia é carregado somente quando suas dependências opcionais estão presentes. A integração **ainda não foi validada em ligação real** e pode não funcionar em todos os hosts.
+
+Depois de a sessão emitir `connection: 'open'`, inicialize o motor:
+
+```js
+await socket.calls.enableVoip({
+  maxConcurrentCalls: 1,
+  useRawUdpTransport: false
+})
+console.log(socket.calls.getVoipStatus())
+console.log(socket.calls.getCapabilities())
+```
+
+Para um bot com inicialização automática, habilite `STONE_VOIP_ENABLED=1`. O transporte UDP alternativo pode ser ativado com `useRawUdpTransport: true`, mas é experimental. Dependências opcionais: `@zapo-js/voip`, `zapo-js`, `@roamhq/wrtc`, `libmlow-wasm-fork`, `ffmpeg-static`. O pacote de mídia e as dependências estão licenciados sob MIT. Os avisos de licença dos pacotes instalados devem ser preservados.
+
+Uma vez que `getCapabilities().startCall` e `audioFiles` sejam verdadeiros, é possível **tentar** uma chamada, aguardar `active` e transmitir um arquivo com `loadAudio(callId, path)`. A conclusão de `enableVoip()` apenas confirma que o motor foi carregado no processo; **não comprova que um destinatário recebeu mídia**. Quando a inicialização falhar, `getVoipStatus().error` apresenta o motivo. Não ative chamadas em produção sem testes com participantes autorizados.
+
+---
+
 ## 🆕 Stone WPP 1.0.7 — novas funções e correções
 
 ### 📞 Chamadas: recursos disponíveis
