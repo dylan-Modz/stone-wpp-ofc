@@ -112,6 +112,7 @@
     "@zapo-js/voip": "^1.4.0",
     "zapo-js": "^1.0.0",
     "@roamhq/wrtc": "^0.10.0",
-    "libmlow-wasm-fork": "^0.2.0"
+    "libmlow-wasm-fork": "^0.2.0",
+    "ffmpeg-static": "^5.2.0"
   }
 }
