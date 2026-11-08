@@ -27,17 +27,19 @@ export interface StoneCallCapabilities {
   incomingMetadata: true
   callLinks: true
   groupCallInvites: boolean
-  startCall: false
-  acceptCall: false
-  joinCall: false
-  liveAudio: false
-  audioFiles: false
-  videoMedia: false
+  startCall: boolean
+  acceptCall: boolean
+  joinCall: boolean
+  liveAudio: boolean
+  audioFiles: boolean
+  videoMedia: boolean
 }
 export interface StoneCalls {
   on(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
   once(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
   off(event: StoneCallEvent, handler: (call: StoneCallInfo) => void): StoneCalls
+  enableVoip(options?: { maxConcurrentCalls?: number; useRawUdpTransport?: boolean; logLevel?: string }): Promise<StoneCallCapabilities>
+  getVoipStatus(): { initialized: boolean; initializing: boolean; error: { code: string; message: string } | null }
   getCapabilities(): StoneCallCapabilities
   getCall(callId: string): StoneCallInfo | null
   getCalls(): StoneCallInfo[]
@@ -49,24 +51,24 @@ export interface StoneCalls {
     url: string
     message: import('../Types/index.js').WAMessage
   }>
-  /** Ainda indisponível no motor nativo: requer negociação VoIP e transporte de mídia. */
-  startCall(...args: any[]): never
-  startGroupCall(...args: any[]): never
-  acceptCall(...args: any[]): never
-  joinCall(...args: any[]): never
-  leaveCall(...args: any[]): never
-  endCall(...args: any[]): never
-  loadAudio(...args: any[]): never
+  /** Disponíveis SOMENTE depois de enableVoip() concluir com o motor de mídia carregado. */
+  startCall(options: { peerJid?: string; groupJid?: string; participants?: Array<{ jid: string; devices?: string[] }>; isVideo?: boolean; audioFile?: string }): Promise<string>
+  startGroupCall(options: { groupJid: string; participants: Array<{ jid: string; devices?: string[] }>; isVideo?: boolean; audioFile?: string }): Promise<string>
+  acceptCall(callId: string): Promise<void>
+  joinCall(callId: string): Promise<void>
+  leaveCall(callId: string): Promise<void>
+  endCall(callId: string): Promise<void>
+  loadAudio(callId: string, file: string): Promise<void>
   playAudio(...args: any[]): never
-  setExternalAudioMode(...args: any[]): never
-  feedLiveAudio(...args: any[]): never
-  getLiveBufferMs(...args: any[]): never
-  getFeedWatermarksMs(...args: any[]): never
-  setMute(...args: any[]): never
+  setExternalAudioMode(callId: string, enabled: boolean): void
+  feedLiveAudio(callId: string, samples: Float32Array): number
+  getLiveBufferMs(callId: string): number
+  getFeedWatermarksMs(callId: string): unknown
+  setMute(callId: string, muted: boolean): void
   destroy(): void
 }
 export declare function createStoneCalls(socket: {
-  ev: { on(event: 'call', handler: (calls: any) => void): any; off(event: 'call', handler: (calls: any) => void): any }
+  ev: { on(event: string, handler: (event: any) => void): any; off(event: string, handler: (event: any) => void): any }
   rejectCall(callId: string, from: string): Promise<void>
   sendNode?: (node: any) => Promise<void>
   createCallLink(type: 'audio' | 'video', event?: { startTime: number }, timeoutMs?: number): Promise<string | undefined>
