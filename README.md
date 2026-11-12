@@ -18,7 +18,7 @@
 
 <br>
 
-<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.8-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.8 do código no GitHub"></a>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.7-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.7 do código no GitHub"></a>
 <img src="https://img.shields.io/badge/NODE.JS-20%2B-111820?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20 ou superior">
 <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&labelColor=111820" alt="Licença MIT">
 
@@ -66,7 +66,7 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 ## 🧪 VoIP experimental — chamadas e áudio
 
-A partir do código **1.0.8**, os componentes de sinalização e o codec MLow fazem parte das **dependências normais da Stone WPP**. O gerenciador de pacotes instala esses módulos junto com a biblioteca, sem exigir comandos separados. O transporte WebRTC e o conversor FFmpeg são opcionais por conterem componentes binários que podem não funcionar em todos os sistemas.
+A partir do código **1.0.7**, os componentes de sinalização e o codec MLow fazem parte das **dependências normais da Stone WPP**. O gerenciador de pacotes instala esses módulos junto com a biblioteca, sem exigir comandos separados. O transporte WebRTC e o conversor FFmpeg são opcionais por conterem componentes binários que podem não funcionar em todos os sistemas.
 
 A chamada utiliza **a mesma conexão WhatsApp autenticada** da Stone: não cria outro cliente e não exige outro QR Code.
 
@@ -108,7 +108,7 @@ console.log('ID da chamada iniciada:', callId)
 
 ---
 
-## 🆕 Stone WPP 1.0.8 — novas funções e correções
+## 🆕 Stone WPP 1.0.7 — novas funções e correções
 
 ### 📞 Chamadas: recursos disponíveis
 
@@ -157,7 +157,7 @@ console.log({ mapping, session })
 - **Sinalização:** metadados de ofertas preservam criador, grupo e possibilidade de ingresso, sem expor chaves ou tokens de mídia.
 - **Compatibilidade:** preserva os recursos existentes de mensagens, grupos e canais.
 
-> **Distribuição:** a versão 1.0.8 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
+> **Distribuição:** a versão 1.0.7 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
 
 ---
 
@@ -169,7 +169,7 @@ npm install @stone-wpp/ofc
 
 **Requisitos:** Node.js **20+**. Biblioteca em JavaScript com suporte a ES Modules.
 
-Para testar especificamente o código **1.0.8 do GitHub**:
+Para testar especificamente o código **1.0.7 do GitHub**:
 
 ```bash
 npm install github:dylan-Modz/stone-wpp-ofc#main
