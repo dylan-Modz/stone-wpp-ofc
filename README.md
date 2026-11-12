@@ -18,7 +18,7 @@
 
 <br>
 
-<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.7-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.7 do código no GitHub"></a>
+<a href="https://github.com/dylan-Modz/stone-wpp-ofc"><img src="https://img.shields.io/badge/VERS%C3%83O-1.0.8-00BFFF?style=for-the-badge&logo=github&logoColor=white&labelColor=111820" alt="Versão 1.0.8 do código no GitHub"></a>
 <img src="https://img.shields.io/badge/NODE.JS-20%2B-111820?style=for-the-badge&logo=node.js&logoColor=00BFFF" alt="Node.js 20 ou superior">
 <img src="https://img.shields.io/badge/LICENSE-MIT-00BFFF?style=for-the-badge&labelColor=111820" alt="Licença MIT">
 
@@ -66,26 +66,49 @@ A documentação principal da **Stone WPP** está disponível no nosso site ofic
 
 ## 🧪 VoIP experimental — chamadas e áudio
 
-A biblioteca inclui um adaptador **experimental** de chamadas usando a conexão WhatsApp e o repositório Signal já autenticados pela Stone. O motor de mídia é carregado somente quando suas dependências opcionais estão presentes. A integração **ainda não foi validada em ligação real** e pode não funcionar em todos os hosts.
+A partir do código **1.0.8**, os componentes de sinalização e o codec MLow fazem parte das **dependências normais da Stone WPP**. O gerenciador de pacotes instala esses módulos junto com a biblioteca, sem exigir comandos separados. O transporte WebRTC e o conversor FFmpeg são opcionais por conterem componentes binários que podem não funcionar em todos os sistemas.
 
-Depois de a sessão emitir `connection: 'open'`, inicialize o motor:
+A chamada utiliza **a mesma conexão WhatsApp autenticada** da Stone: não cria outro cliente e não exige outro QR Code.
+
+### Ativação depois da conexão
 
 ```js
-await socket.calls.enableVoip({
-  maxConcurrentCalls: 1,
-  useRawUdpTransport: false
-})
-console.log(socket.calls.getVoipStatus())
-console.log(socket.calls.getCapabilities())
+// Depois de connection: 'open':
+await stone.calls.enableVoip({ maxConcurrentCalls: 1 })
+
+console.log(stone.calls.getVoipStatus())
+console.log(stone.calls.getCapabilities())
 ```
 
-Para um bot com inicialização automática, habilite `STONE_VOIP_ENABLED=1`. O transporte UDP alternativo pode ser ativado com `useRawUdpTransport: true`, mas é experimental. Dependências opcionais: `@zapo-js/voip`, `zapo-js`, `@roamhq/wrtc`, `libmlow-wasm-fork`, `ffmpeg-static`. O pacote de mídia e as dependências estão licenciados sob MIT. Os avisos de licença dos pacotes instalados devem ser preservados.
+Para habilitar automaticamente após a conexão, configure `STONE_VOIP_ENABLED=1` no ambiente do processo.
 
-Uma vez que `getCapabilities().startCall` e `audioFiles` sejam verdadeiros, é possível **tentar** uma chamada, aguardar `active` e transmitir um arquivo com `loadAudio(callId, path)`. A conclusão de `enableVoip()` apenas confirma que o motor foi carregado no processo; **não comprova que um destinatário recebeu mídia**. Quando a inicialização falhar, `getVoipStatus().error` apresenta o motivo. Não ative chamadas em produção sem testes com participantes autorizados.
+**Transporte:** quando o WebRTC está disponível, ele é usado. Caso não carregue, o motor tenta **UDP direto experimental** e informa `transport: 'raw-udp'` e `transportFallback: true`. Para proibir esse fallback, use `enableVoip({ rawUdpFallback: false })`; para forçar UDP use `enableVoip({ useRawUdpTransport: true })`. O suporte final depende do servidor e da plataforma.
+
+### Exemplo de ligação e áudio
+
+```js
+stone.calls.on('state', async call => {
+  console.log('Chamada:', call.callId, call.stateData.state)
+  if (call.stateData.state === 'active') {
+    // Faça o envio apenas se este for o ID esperado e houver arquivo local.
+    // await stone.calls.loadAudio(call.callId, './musica.mp3')
+  }
+})
+
+// Depois de enableVoip() ter funcionado:
+const callId = await stone.calls.startCall({
+  peerJid: '5511999999999@s.whatsapp.net'
+})
+console.log('ID da chamada iniciada:', callId)
+```
+
+`startCall()` retorna o identificador após enviar a oferta; **não comprova conexão ou áudio entregue**. `loadAudio()` precisa de FFmpeg disponível e uma chamada com mídia ativa. `setExternalAudioMode()` e `feedLiveAudio()` aceitam PCM mono Float32 de 16 kHz para áudio ao vivo. Todas essas operações dependem de `enableVoip()` e da disponibilidade do host.
+
+**Estado de validação:** a integração não foi homologada em uma ligação real ponta-a-ponta. Antes de usar em produção, teste com pessoas que consentiram, verifique os eventos `active`, `ended` e `stone.voip.error`, e confirme a mídia nos dois sentidos. `getVoipStatus().error` traz diagnósticos de carregamento. As licenças e os avisos dos componentes instalados devem ser preservados.
 
 ---
 
-## 🆕 Stone WPP 1.0.7 — novas funções e correções
+## 🆕 Stone WPP 1.0.8 — novas funções e correções
 
 ### 📞 Chamadas: recursos disponíveis
 
@@ -111,7 +134,7 @@ stone.calls.on('state', call => {
 console.log(stone.calls.getCapabilities())
 ```
 
-**Limitação atual:** iniciar, atender ou entrar em chamadas e transmitir áudio/vídeo **ainda não estão implementados no motor nativo**. Essas operações retornam `STONE_CALL_MEDIA_NOT_IMPLEMENTED`. Um convite por link não significa que o bot esteja numa ligação.
+**Limitação atual:** iniciar, atender ou entrar em chamadas e transmitir áudio agora são encaminhados ao motor VoIP **somente depois de `enableVoip()`**. Antes disso, as operações de mídia continuam retornando `STONE_CALL_MEDIA_NOT_IMPLEMENTED`. A integração segue experimental e não equivale a uma ligação testada ponta-a-ponta. Um convite por link não significa que o bot esteja numa ligação.
 
 ### 🔍 Novos diagnósticos
 
@@ -134,7 +157,7 @@ console.log({ mapping, session })
 - **Sinalização:** metadados de ofertas preservam criador, grupo e possibilidade de ingresso, sem expor chaves ou tokens de mídia.
 - **Compatibilidade:** preserva os recursos existentes de mensagens, grupos e canais.
 
-> **Distribuição:** a versão 1.0.7 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
+> **Distribuição:** a versão 1.0.8 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
 
 ---
 
@@ -146,7 +169,7 @@ npm install @stone-wpp/ofc
 
 **Requisitos:** Node.js **20+**. Biblioteca em JavaScript com suporte a ES Modules.
 
-Para testar especificamente o código **1.0.7 do GitHub**:
+Para testar especificamente o código **1.0.8 do GitHub**:
 
 ```bash
 npm install github:dylan-Modz/stone-wpp-ofc#main
