@@ -106,6 +106,8 @@ console.log('ID da chamada iniciada:', callId)
 
 **Estado dos testes:** uma chamada **individual de voz com reprodução de música foi confirmada** durante testes no Aurora System. Isso não é homologação geral de produção nem garantia de funcionamento em todos os aparelhos ou redes. **Chamadas em grupo continuam sem conexão confirmada:** o servidor recusou ofertas com `setup_failed` e ACK 412 (também houve ACK 400). O código mantém a implementação experimental para futuras investigações, mas não anuncie chamadas em grupo como funcionais. Teste somente com participantes que consentiram, confira `active` e `ended`, e preserve as licenças dos componentes instalados.
 
+**Sinalização de disponibilidade:** `getCapabilities().groupCallStartExperimental` informa apenas se a interface de início de grupo está acessível com o motor carregado. `getCapabilities().groupCallConnectionVerified` permanece `false` enquanto não houver confirmação real desse fluxo. **Isso não impede chamadas individuais** e não altera a API de mensagens, grupos comuns ou links de chamada.
+
 ---
 
 ## 🆕 Stone WPP 1.0.7 — novas funções e correções
@@ -170,6 +172,8 @@ npm install
 npm test
 npm pack --dry-run
 npm login
+npm whoami
+npm publish --dry-run --access public
 npm publish --access public
 ```
 
