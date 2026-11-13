@@ -38,187 +38,74 @@
 
 ---
 
-## 📚 DOCUMENTAÇÃO COMPLETA
+## 🚀 Stone WPP 1.0.7
 
-A documentação principal da **Stone WPP** está disponível no nosso site oficial, com navegação por categorias, pesquisa e exemplos. Em vez de repetir todos os tutoriais aqui no npm, centralizamos as explicações no site para você encontrar cada recurso no lugar certo.
+A versão **1.0.7** traz novos recursos de chamadas e aprimoramentos na comunicação, no processamento de mídias e na estabilidade da biblioteca.
 
-<div align="center">
+### 🆕 O que chegou de novo
 
-### **[🌐 ABRIR DOCUMENTAÇÃO — STONE WPP](https://stone-wpp.squareweb.app/)**
+**📞 Chamadas VoIP (novo módulo experimental)**
 
-**https://stone-wpp.squareweb.app/**
+A Stone passa a oferecer uma interface integrada para trabalhar com chamadas pela **mesma conexão autenticada do WhatsApp**, sem criar uma sessão adicional.
 
-</div>
+- **Chamadas de voz:** iniciar, atender, recusar e encerrar ligações pelo gerenciador `stone.calls`.
+- **Áudio em chamadas:** reprodução de arquivos de áudio e envio de áudio ao vivo, conforme a disponibilidade do motor.
+- **Eventos em tempo real:** informações sobre chamadas recebidas, mudanças de estado e encerramentos.
+- **Links de chamada:** criação de links para chamadas de voz e vídeo e envio de convites para grupos.
+- **Chamadas em grupo:** API de início, ingresso e saída adicionada em caráter experimental.
+- **Informações de recursos:** `getVoipStatus()` e `getCapabilities()` para consultar os recursos disponíveis.
 
-| O que você encontra | Conteúdo |
+> O módulo VoIP é **experimental** e depende do ambiente e da compatibilidade com o WhatsApp. A presença de uma função na API não garante que uma chamada seja estabelecida, especialmente em grupos.
+
+**🔎 Novas ferramentas de diagnóstico**
+
+- `resolveJidMapping(jid)` — consulta o mapeamento conhecido entre identificadores PN e LID.
+- `inspectSignalSession(jid)` — consulta informações sobre a existência de uma sessão Signal.
+
+### 🛠️ O que melhorou nas funções existentes
+
+- **Download de mídias:** tratamento de falhas HTTP **403, 404 e 410**, com nova tentativa pela URL original quando aplicável.
+- **Tratamento de arquivos:** identificação mais clara de mídias sem chave de descriptografia e limites de espera durante tentativas de recuperação.
+- **Identificadores PN/LID:** melhorias na interpretação de JIDs e dispositivos retornados pela sincronização USync.
+- **Conexão e eventos:** ajustes de estabilidade e tratamento de estados, preservando a conexão principal.
+- **Compatibilidade:** manutenção dos recursos de mensagens, autenticação, grupos, comunidades e canais.
+
+---
+
+## 📚 Documentação
+
+O site oficial concentra os guias, exemplos e referências das funções disponíveis na Stone WPP.
+
+**[📖 Acessar a documentação completa](https://stone-wpp.squareweb.app/)**
+
+| Área | O que você encontra |
 | :--- | :--- |
-| 🚀 **Primeiros passos** | Instalação, configuração e uso inicial. |
-| 🔐 **Autenticação** | Sessão, conexão e reconexão. |
-| 💬 **Mensagens** | Envio, recebimento e eventos. |
-| 🧩 **Botões** | Exemplos e referências das mensagens interativas. |
-| 👥 **Grupos e comunidades** | Operações e gerenciamento. |
-| 📢 **Canais** | Métodos e recursos disponíveis. |
-| ⚙️ **Outros módulos** | API, DataLayer (armazenamento), Extensions (extensões) e funcionalidades relacionadas. |
-
-> **Importante:** a Stone WPP está em desenvolvimento. Consulte a documentação para conhecer os recursos disponíveis e suas limitações. Nem todas as funções planejadas estão implementadas.
+| Conexão e autenticação | Sessão, eventos e reconexão |
+| Mensagens e mídias | Envio, recebimento, downloads e arquivos |
+| Grupos e comunidades | Administração e operações de grupos |
+| Canais | Recursos de canais do WhatsApp |
+| Chamadas | Métodos e eventos do novo módulo VoIP |
+| Outros módulos | API, armazenamento e extensões |
 
 ---
 
-## 🧪 VoIP experimental — chamadas e áudio
+## 📦 Instalação
 
-A partir do código **1.0.7**, os componentes de sinalização e o codec MLow fazem parte das **dependências normais da Stone WPP**. O gerenciador de pacotes instala esses módulos junto com a biblioteca, sem exigir comandos separados. O transporte WebRTC e o conversor FFmpeg são opcionais por conterem componentes binários que podem não funcionar em todos os sistemas.
-
-A chamada utiliza **a mesma conexão WhatsApp autenticada** da Stone: não cria outro cliente e não exige outro QR Code.
-
-### Ativação depois da conexão
-
-```js
-// Depois de connection: 'open':
-await stone.calls.enableVoip({ maxConcurrentCalls: 1 })
-
-console.log(stone.calls.getVoipStatus())
-console.log(stone.calls.getCapabilities())
-```
-
-Para habilitar automaticamente após a conexão, configure `STONE_VOIP_ENABLED=1` no ambiente do processo.
-
-**Transporte:** quando o WebRTC está disponível, ele é usado. Caso não carregue, o motor tenta **UDP direto experimental** e informa `transport: 'raw-udp'` e `transportFallback: true`. Para proibir esse fallback, use `enableVoip({ rawUdpFallback: false })`; para forçar UDP use `enableVoip({ useRawUdpTransport: true })`. O suporte final depende do servidor e da plataforma.
-
-### Exemplo de ligação e áudio
-
-```js
-stone.calls.on('state', async call => {
-  console.log('Chamada:', call.callId, call.stateData.state)
-  if (call.stateData.state === 'active') {
-    // Faça o envio apenas se este for o ID esperado e houver arquivo local.
-    // await stone.calls.loadAudio(call.callId, './musica.mp3')
-  }
-})
-
-// Depois de enableVoip() ter funcionado:
-const callId = await stone.calls.startCall({
-  peerJid: '5511999999999@s.whatsapp.net'
-})
-console.log('ID da chamada iniciada:', callId)
-```
-
-`startCall()` retorna o identificador após enviar a oferta; **não comprova conexão ou áudio entregue**. `loadAudio()` precisa de FFmpeg disponível e uma chamada com mídia ativa. `setExternalAudioMode()` e `feedLiveAudio()` aceitam PCM mono Float32 de 16 kHz para áudio ao vivo. Todas essas operações dependem de `enableVoip()` e da disponibilidade do host.
-
-**Estado dos testes:** uma chamada **individual de voz com reprodução de música foi confirmada** durante testes no Aurora System. Isso não é homologação geral de produção nem garantia de funcionamento em todos os aparelhos ou redes. **Chamadas em grupo continuam sem conexão confirmada:** o servidor recusou ofertas com `setup_failed` e ACK 412 (também houve ACK 400). O código mantém a implementação experimental para futuras investigações, mas não anuncie chamadas em grupo como funcionais. Teste somente com participantes que consentiram, confira `active` e `ended`, e preserve as licenças dos componentes instalados.
-
-**Sinalização de disponibilidade:** `getCapabilities().groupCallStartExperimental` informa apenas se a interface de início de grupo está acessível com o motor carregado. `getCapabilities().groupCallConnectionVerified` permanece `false` enquanto não houver confirmação real desse fluxo. **Isso não impede chamadas individuais** e não altera a API de mensagens, grupos comuns ou links de chamada.
-
----
-
-## 🆕 Stone WPP 1.0.7 — novas funções e correções
-
-### 📞 Chamadas: recursos disponíveis
-
-- **`stone.calls.on('incoming', handler)`** — recebe informações de ofertas de ligação.
-- **`stone.calls.on('state', handler)`** — acompanha mudanças de estado de chamadas.
-- **`stone.calls.on('ended', handler)`** — observa encerramentos, recusas e expirações.
-- **`stone.calls.getCall(callId)`** — consulta uma chamada observada.
-- **`stone.calls.getCalls()`** — lista chamadas conhecidas da sessão.
-- **`stone.calls.rejectCall(callId)`** — encaminha a recusa de uma oferta válida.
-- **`stone.calls.createCallLink(type)`** — solicita link de voz ou vídeo.
-- **`stone.calls.sendGroupCallInvite(groupJid, options)`** — envia convite com link ao grupo.
-- **`stone.calls.getCapabilities()`** — informa quais interfaces estão presentes e se o motor carregou; **não garante** aceitação da chamada pelo WhatsApp, especialmente em grupos.
-
-```js
-stone.calls.on('incoming', call => {
-  console.log('Ligação recebida:', call.callId, call.from)
-})
-
-stone.calls.on('state', call => {
-  console.log('Estado da ligação:', call.status)
-})
-
-console.log(stone.calls.getCapabilities())
-```
-
-**Limitação atual:** iniciar, atender, entrar em chamadas ou transmitir áudio são encaminhados ao motor VoIP **somente depois de `enableVoip()`**. Antes disso, retornam `STONE_CALL_MEDIA_NOT_IMPLEMENTED`. A chamada **individual** já teve teste real de áudio com sucesso, mas todo o VoIP permanece experimental. **Criar um link ou enviar um convite não coloca automaticamente o bot na ligação.** A sinalização de **grupo** ainda não funcionou nos testes reais (ACK 412); essa função não deve ser tratada como pronta.
-
-### 🔍 Novos diagnósticos
-
-- `resolveJidMapping(jid)` — consulta o vínculo conhecido entre identificadores PN e LID.
-- `inspectSignalSession(jid)` — consulta a existência de uma sessão criptográfica sem modificar chaves.
-
-```js
-const mapping = await stone.resolveJidMapping('5511999999999@s.whatsapp.net')
-const session = await stone.inspectSignalSession('5511999999999@s.whatsapp.net')
-console.log({ mapping, session })
-```
-
-### 🛠️ Correções e melhorias
-
-- **Mídias:** tenta a URL original quando o caminho direto falha com HTTP 403, 404 ou 410.
-- **Segurança da mídia:** sinaliza ausência de chave e limita a espera por reenvios.
-- **Mapeamento PN/LID:** melhora o tratamento de JIDs com dispositivos nas respostas USync.
-- **Conexão única:** eventos e recusas de chamadas usam o socket principal da Stone.
-- **Chamadas em grupo (não homologadas):** mantém validação de membros, identificação PN/LID, diagnóstico de ACK e auditoria local da oferta; o WhatsApp ainda pode recusar com ACK 412.
-- **Sinalização:** metadados de ofertas preservam criador, grupo e possibilidade de ingresso, sem expor chaves ou tokens de mídia.
-- **Compatibilidade:** preserva os recursos existentes de mensagens, grupos e canais.
-
-> **Distribuição:** o código **1.0.7** está no GitHub; a publicação no registro npm é uma etapa separada feita pelo mantenedor. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
-
----
-
-### Publicar a versão 1.0.7 no npm (mantenedor)
-
-A chamada individual com música foi testada com sucesso; **as chamadas em grupo continuam experimentais e sem conexão confirmada**. Não anuncie esse recurso como funcional na publicação.
-
-Se ainda não tiver o repositório:
-
-```bash
-git clone https://github.com/dylan-Modz/stone-wpp-ofc.git
-cd stone-wpp-ofc
-```
-
-Se já tiver a pasta, entre nela e execute `git pull origin main` para atualizar o código.
-
-```bash
-npm install
-npm view @stone-wpp/ofc version
-npm run release:check
-npm login
-npm whoami
-npm publish --access public
-```
-
-O `release:check` executa `npm test` e `npm pack --dry-run` para verificar o pacote sem publicar. Confira se a versão exibida pelo registro ainda é **1.0.6**, pois a versão local é **1.0.7**. `npm publish` executa `prepublishOnly` (os testes) novamente.
-
-É necessário ter permissão no escopo `@stone-wpp` e autenticação npm com 2FA ou outra modalidade aceita. **Não execute `npm version`**: o `package.json` já define a versão 1.0.7. A mesma versão não pode ser publicada duas vezes. Não compartilhe tokens ou códigos de autenticação.
----
-
-## 📦 INSTALAÇÃO
+**Requisito:** Node.js 20 ou superior.
 
 ```bash
 npm install @stone-wpp/ofc
 ```
 
-**Requisitos:** Node.js **20+**. Biblioteca em JavaScript com suporte a ES Modules.
-
-Para testar especificamente o código **1.0.7 do GitHub**:
+Para utilizar o código disponível diretamente no GitHub:
 
 ```bash
 npm install github:dylan-Modz/stone-wpp-ofc#main
 ```
 
-O comando npm oficial instala a versão publicada no registro, que pode ser diferente da versão do GitHub.
-
-Para instalar no **Termux**, dentro da pasta da sua aplicação:
-
-```bash
-pkg update -y
-pkg install nodejs-lts git -y
-npm install @stone-wpp/ofc
-```
-
-No Android, algumas dependências podem exigir suporte nativo. Prefira instalar na pasta privada do Termux.
-
 ---
 
-## ⚡ EXEMPLO RÁPIDO
+## ⚡ Exemplo rápido
 
 ```js
 import createStone, { useMultiFileAuthState } from '@stone-wpp/ofc'
@@ -233,9 +120,7 @@ stone.ev.on('connection.update', ({ connection }) => {
 })
 ```
 
-Para entender cada método, opções de conexão, eventos e exemplos, acesse a **[documentação oficial](https://stone-wpp.squareweb.app/)**.
-
-> A Stone WPP é uma **biblioteca**, não um bot pronto. Não possui `npm start` próprio. Proteja suas sessões e credenciais; não as publique em repositórios.
+Para explorar os métodos e exemplos de integração, consulte a **[documentação oficial](https://stone-wpp.squareweb.app/)**.
 
 ---
 
