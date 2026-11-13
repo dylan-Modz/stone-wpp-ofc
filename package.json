@@ -27,12 +27,14 @@
     "engine-requirements.js",
     "README.md",
     "LICENSE",
-    "!lib/**/*.test.mjs"
+    "!lib/**/*.test.mjs",
+    "!lib/**/*.bak"
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
     "test": "node --test lib/Socket/stone-calls.test.mjs lib/Socket/group-protection.test.mjs lib/Signal/stability-1.0.7.test.mjs lib/Socket/stone-call-signaling.test.mjs lib/Socket/stone-call-keys.test.mjs lib/Socket/stone-call-audio.test.mjs lib/Socket/stone-pairing-state.test.mjs lib/Socket/stone-voip-bridge.test.mjs lib/Socket/stone-voip-codec.test.mjs lib/Socket/stone-voip-transport.test.mjs lib/Socket/stone-voip-install.test.mjs lib/Socket/stone-voip-group.test.mjs lib/Socket/stone-voip-identity.test.mjs lib/Socket/stone-voip-offer-audit.test.mjs",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test",
+    "release:check": "npm test && npm pack --dry-run"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",
