@@ -165,20 +165,29 @@ console.log({ mapping, session })
 
 ### Publicar a versão 1.0.7 no npm (mantenedor)
 
-Na raiz do repositório, depois de confirmar que a versão publicada ainda é 1.0.6:
+A chamada individual com música foi testada com sucesso; **as chamadas em grupo continuam experimentais e sem conexão confirmada**. Não anuncie esse recurso como funcional na publicação.
+
+Se ainda não tiver o repositório:
+
+```bash
+git clone https://github.com/dylan-Modz/stone-wpp-ofc.git
+cd stone-wpp-ofc
+```
+
+Se já tiver a pasta, entre nela e execute `git pull origin main` para atualizar o código.
 
 ```bash
 npm install
-npm test
-npm pack --dry-run
+npm view @stone-wpp/ofc version
+npm run release:check
 npm login
 npm whoami
-npm publish --dry-run --access public
 npm publish --access public
 ```
 
-É necessário ter permissão de publicação no escopo `@stone-wpp` e autenticação npm adequada (2FA ou método aceito pela conta). `npm publish` executa os testes de `prepublishOnly` antes de enviar o pacote. **Não execute `npm version`** ao publicar a 1.0.7: essa versão já está definida no `package.json`. Se o registro já contiver essa versão, ela não pode ser publicada novamente.
+O `release:check` executa `npm test` e `npm pack --dry-run` para verificar o pacote sem publicar. Confira se a versão exibida pelo registro ainda é **1.0.6**, pois a versão local é **1.0.7**. `npm publish` executa `prepublishOnly` (os testes) novamente.
 
+É necessário ter permissão no escopo `@stone-wpp` e autenticação npm com 2FA ou outra modalidade aceita. **Não execute `npm version`**: o `package.json` já define a versão 1.0.7. A mesma versão não pode ser publicada duas vezes. Não compartilhe tokens ou códigos de autenticação.
 ---
 
 ## 📦 INSTALAÇÃO
