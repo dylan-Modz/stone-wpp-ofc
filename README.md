@@ -104,7 +104,7 @@ console.log('ID da chamada iniciada:', callId)
 
 `startCall()` retorna o identificador após enviar a oferta; **não comprova conexão ou áudio entregue**. `loadAudio()` precisa de FFmpeg disponível e uma chamada com mídia ativa. `setExternalAudioMode()` e `feedLiveAudio()` aceitam PCM mono Float32 de 16 kHz para áudio ao vivo. Todas essas operações dependem de `enableVoip()` e da disponibilidade do host.
 
-**Estado de validação:** a integração não foi homologada em uma ligação real ponta-a-ponta. Antes de usar em produção, teste com pessoas que consentiram, verifique os eventos `active`, `ended` e `stone.voip.error`, e confirme a mídia nos dois sentidos. `getVoipStatus().error` traz diagnósticos de carregamento. As licenças e os avisos dos componentes instalados devem ser preservados.
+**Estado dos testes:** uma chamada **individual de voz com reprodução de música foi confirmada** durante testes no Aurora System. Isso não é homologação geral de produção nem garantia de funcionamento em todos os aparelhos ou redes. **Chamadas em grupo continuam sem conexão confirmada:** o servidor recusou ofertas com `setup_failed` e ACK 412 (também houve ACK 400). O código mantém a implementação experimental para futuras investigações, mas não anuncie chamadas em grupo como funcionais. Teste somente com participantes que consentiram, confira `active` e `ended`, e preserve as licenças dos componentes instalados.
 
 ---
 
@@ -120,7 +120,7 @@ console.log('ID da chamada iniciada:', callId)
 - **`stone.calls.rejectCall(callId)`** — encaminha a recusa de uma oferta válida.
 - **`stone.calls.createCallLink(type)`** — solicita link de voz ou vídeo.
 - **`stone.calls.sendGroupCallInvite(groupJid, options)`** — envia convite com link ao grupo.
-- **`stone.calls.getCapabilities()`** — informa o suporte real das operações de chamadas.
+- **`stone.calls.getCapabilities()`** — informa quais interfaces estão presentes e se o motor carregou; **não garante** aceitação da chamada pelo WhatsApp, especialmente em grupos.
 
 ```js
 stone.calls.on('incoming', call => {
@@ -134,7 +134,7 @@ stone.calls.on('state', call => {
 console.log(stone.calls.getCapabilities())
 ```
 
-**Limitação atual:** iniciar, atender ou entrar em chamadas e transmitir áudio agora são encaminhados ao motor VoIP **somente depois de `enableVoip()`**. Antes disso, as operações de mídia continuam retornando `STONE_CALL_MEDIA_NOT_IMPLEMENTED`. A integração segue experimental e não equivale a uma ligação testada ponta-a-ponta. Um convite por link não significa que o bot esteja numa ligação.
+**Limitação atual:** iniciar, atender, entrar em chamadas ou transmitir áudio são encaminhados ao motor VoIP **somente depois de `enableVoip()`**. Antes disso, retornam `STONE_CALL_MEDIA_NOT_IMPLEMENTED`. A chamada **individual** já teve teste real de áudio com sucesso, mas todo o VoIP permanece experimental. **Criar um link ou enviar um convite não coloca automaticamente o bot na ligação.** A sinalização de **grupo** ainda não funcionou nos testes reais (ACK 412); essa função não deve ser tratada como pronta.
 
 ### 🔍 Novos diagnósticos
 
@@ -153,11 +153,27 @@ console.log({ mapping, session })
 - **Segurança da mídia:** sinaliza ausência de chave e limita a espera por reenvios.
 - **Mapeamento PN/LID:** melhora o tratamento de JIDs com dispositivos nas respostas USync.
 - **Conexão única:** eventos e recusas de chamadas usam o socket principal da Stone.
-- **Chamadas em grupo:** recusa enviada ao endereço da própria chamada, com identificador de sinalização válido.
+- **Chamadas em grupo (não homologadas):** mantém validação de membros, identificação PN/LID, diagnóstico de ACK e auditoria local da oferta; o WhatsApp ainda pode recusar com ACK 412.
 - **Sinalização:** metadados de ofertas preservam criador, grupo e possibilidade de ingresso, sem expor chaves ou tokens de mídia.
 - **Compatibilidade:** preserva os recursos existentes de mensagens, grupos e canais.
 
-> **Distribuição:** a versão 1.0.7 descrita está no GitHub. O registro npm pode estar em outra versão até uma publicação separada. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
+> **Distribuição:** o código **1.0.7** está no GitHub; a publicação no registro npm é uma etapa separada feita pelo mantenedor. A documentação detalhada fica no **[site oficial](https://stone-wpp.squareweb.app/#/features/chamadas)**.
+
+---
+
+### Publicar a versão 1.0.7 no npm (mantenedor)
+
+Na raiz do repositório, depois de confirmar que a versão publicada ainda é 1.0.6:
+
+```bash
+npm install
+npm test
+npm pack --dry-run
+npm login
+npm publish --access public
+```
+
+É necessário ter permissão de publicação no escopo `@stone-wpp` e autenticação npm adequada (2FA ou método aceito pela conta). `npm publish` executa os testes de `prepublishOnly` antes de enviar o pacote. **Não execute `npm version`** ao publicar a 1.0.7: essa versão já está definida no `package.json`. Se o registro já contiver essa versão, ela não pode ser publicada novamente.
 
 ---
 
