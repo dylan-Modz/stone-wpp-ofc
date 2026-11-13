@@ -38,37 +38,36 @@
 
 ---
 
-## 🚀 Stone WPP 1.0.7
+## 🚀 Stone WPP 1.0.7 — novidades e melhorias
 
-A versão **1.0.7** traz novos recursos de chamadas e aprimoramentos na comunicação, no processamento de mídias e na estabilidade da biblioteca.
+A **1.0.7** apresenta um módulo totalmente novo de chamadas e aperfeiçoa recursos que a Stone WPP já oferecia.
 
-### 🆕 O que chegou de novo
+### 🆕 Novidades desta versão
 
-**📞 Chamadas VoIP (novo módulo experimental)**
+**📞 VoIP — novo módulo experimental**
 
-A Stone passa a oferecer uma interface integrada para trabalhar com chamadas pela **mesma conexão autenticada do WhatsApp**, sem criar uma sessão adicional.
+A Stone agora oferece a interface `stone.calls` para trabalhar com chamadas usando **a mesma conexão autenticada do WhatsApp**.
 
-- **Chamadas de voz:** iniciar, atender, recusar e encerrar ligações pelo gerenciador `stone.calls`.
-- **Áudio em chamadas:** reprodução de arquivos de áudio e envio de áudio ao vivo, conforme a disponibilidade do motor.
-- **Eventos em tempo real:** informações sobre chamadas recebidas, mudanças de estado e encerramentos.
-- **Links de chamada:** criação de links para chamadas de voz e vídeo e envio de convites para grupos.
-- **Chamadas em grupo:** API de início, ingresso e saída adicionada em caráter experimental.
-- **Informações de recursos:** `getVoipStatus()` e `getCapabilities()` para consultar os recursos disponíveis.
+- **Chamadas de voz:** iniciar, atender, recusar e encerrar ligações.
+- **Música e áudio:** carregar arquivos de áudio e transmitir áudio em tempo real, conforme o suporte do ambiente.
+- **Eventos de chamadas:** acompanhar ligações recebidas, alterações de estado e encerramentos.
+- **Links e convites:** gerar links de chamada de voz ou vídeo e compartilhá-los com grupos.
+- **Chamadas em grupo:** novas interfaces para iniciar, entrar e sair de chamadas, ainda em caráter experimental.
+- **Controle do módulo:** consultar a disponibilidade dos recursos com `getVoipStatus()` e `getCapabilities()`.
 
-> O módulo VoIP é **experimental** e depende do ambiente e da compatibilidade com o WhatsApp. A presença de uma função na API não garante que uma chamada seja estabelecida, especialmente em grupos.
+> **VoIP é uma funcionalidade nova e experimental.** Alguns recursos, especialmente as chamadas em grupo, dependem da compatibilidade com o WhatsApp e podem não estar disponíveis em todos os ambientes.
 
 **🔎 Novas ferramentas de diagnóstico**
 
 - `resolveJidMapping(jid)` — consulta o mapeamento conhecido entre identificadores PN e LID.
-- `inspectSignalSession(jid)` — consulta informações sobre a existência de uma sessão Signal.
+- `inspectSignalSession(jid)` — consulta a existência de uma sessão criptográfica Signal.
 
-### 🛠️ O que melhorou nas funções existentes
+### 🛠️ Melhorias nas funções que já existiam
 
-- **Download de mídias:** tratamento de falhas HTTP **403, 404 e 410**, com nova tentativa pela URL original quando aplicável.
-- **Tratamento de arquivos:** identificação mais clara de mídias sem chave de descriptografia e limites de espera durante tentativas de recuperação.
-- **Identificadores PN/LID:** melhorias na interpretação de JIDs e dispositivos retornados pela sincronização USync.
-- **Conexão e eventos:** ajustes de estabilidade e tratamento de estados, preservando a conexão principal.
-- **Compatibilidade:** manutenção dos recursos de mensagens, autenticação, grupos, comunidades e canais.
+- **Downloads de mídia:** recuperação aprimorada quando a URL direta responde com HTTP 403, 404 ou 410, tentando a URL original quando possível.
+- **Arquivos e descriptografia:** identificação mais clara de mídias sem chave e limites de espera para evitar processamento preso em tentativas de recuperação.
+- **Identificadores PN/LID:** tratamento aprimorado dos JIDs de usuários e dispositivos nas respostas da sincronização USync.
+- **Estabilidade e integração:** ajustes no tratamento dos eventos e na consistência das informações de sessão, mantendo os recursos de mensagens, grupos e canais.
 
 ---
 
