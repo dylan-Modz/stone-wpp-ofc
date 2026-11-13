@@ -44,9 +44,9 @@ A **1.0.7** apresenta um módulo totalmente novo de chamadas e aperfeiçoa recur
 
 ### 🆕 Novidades desta versão
 
-**📞 Vox**
+**📞 VoIP — novo módulo experimental**
 
-**Vox** é o novo módulo de chamadas da Stone WPP. Ele utiliza a tecnologia VoIP na **mesma conexão autenticada do WhatsApp**, pela interface `stone.calls`.
+A Stone agora oferece a interface `stone.calls` para trabalhar com chamadas usando **a mesma conexão autenticada do WhatsApp**.
 
 - **Chamadas de voz:** iniciar, atender, recusar e encerrar ligações.
 - **Música e áudio:** carregar arquivos de áudio e transmitir áudio em tempo real, conforme o suporte do ambiente.
@@ -55,7 +55,7 @@ A **1.0.7** apresenta um módulo totalmente novo de chamadas e aperfeiçoa recur
 - **Chamadas em grupo:** novas interfaces para iniciar, entrar e sair de chamadas, ainda em caráter experimental.
 - **Controle do módulo:** consultar a disponibilidade dos recursos com `getVoipStatus()` e `getCapabilities()`.
 
-> **Vox é uma novidade experimental.** Algumas funções, principalmente chamadas em grupo, dependem da compatibilidade com o WhatsApp e podem não funcionar em todos os ambientes.
+> **VoIP é uma funcionalidade nova e experimental.** Alguns recursos, especialmente as chamadas em grupo, dependem da compatibilidade com o WhatsApp e podem não estar disponíveis em todos os ambientes.
 
 **🔎 Novas ferramentas de diagnóstico**
 
@@ -83,7 +83,7 @@ O site oficial concentra os guias, exemplos e referências das funções dispon�
 | Mensagens e mídias | Envio, recebimento, downloads e arquivos |
 | Grupos e comunidades | Administração e operações de grupos |
 | Canais | Recursos de canais do WhatsApp |
-| Vox | Chamadas de voz, áudio, links e eventos |
+| Chamadas | Métodos e eventos do novo módulo VoIP |
 | Outros módulos | API, armazenamento e extensões |
 
 ---
