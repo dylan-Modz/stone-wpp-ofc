@@ -10,6 +10,13 @@ import type { LabelAssociation } from './LabelAssociation.js';
 import type { MessageUpsertType, MessageUserReceiptUpdate, WAMessage, WAMessageKey, WAMessageUpdate } from './Message.js';
 import type { ConnectionState, NewChatMessageCapInfo } from './State.js';
 export type StoneWPPEventMap = {
+    /** Aviso de visualização única recebido sem mídia. Não contém mediaKey. */
+    'message_unavailable': {
+        kind: 'view_once';
+        key: WAMessageKey;
+        unavailableType: 'view_once' | 'view_once_unavailable_fanout';
+        messageTimestamp?: number | bigint | object | null;
+    };
     /** Sinal da recepção nativa de ciphertext (não confirma ataque). */
     'group-protection.ciphertext': {
         remoteJid: string;
