@@ -1,0 +1,22 @@
+name: Stone WPP - diagnostico de mídia (teste)
+on:
+  push:
+    branches:
+      - teste/diagnostico-midia-20261115
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxe
+        run: |
+          node --check lib/Socket/messages-recv.js
+          node --check lib/Socket/stone-media-availability.js
+      - name: Testar eventos de diagnostico
+        run: node --test lib/Socket/stone-media-availability.test.mjs
