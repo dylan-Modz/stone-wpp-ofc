@@ -85,3 +85,14 @@ O Gateway fornece `GET /v1/console?since=0` (exige token Bearer). A resposta con
 O terminal recebe mensagens novas via `messages.upsert` e confirmações de envio pela API; ignora a sincronização de histórico (`type: append`) para evitar flood de conversas antigas. Um envio aceito pelo socket não significa entrega ou leitura. O painel consulta eventos a cada 2,5 segundos enquanto está aberto.
 
 Se a interface for atualizada antes do Gateway, ela usa o endpoint legado `/v1/activity` como modo de compatibilidade, sem prévia ou classificação de mídia. Atualize o Gateway para habilitar tudo.
+
+
+## Contato e conteúdo no terminal (correção de LID)
+
+O terminal exibe **nome do contato** (quando recebido em `pushName` ou nos eventos de contatos), o número em formato mascarado e, em linhas separadas, a **direção**, o **tipo** e o **conteúdo textual** da mensagem. Um identificador WhatsApp `@lid` não é número de telefone e nunca é exibido como se fosse. Quando o evento fornecer `remoteJidAlt` / `participantAlt` com identificador telefônico, ele é usado para resolver o número. Se não houver nome nem PN disponível, o painel indica apenas `Contato` ou `Participante do grupo`, sem inventar informações.
+
+O conteúdo de texto ou a legenda de imagem/vídeo (até 4096 caracteres) e o **número completo** só são retornados após ativar a opção de prévias no painel. O tipo de áudio, figurinha, vídeo e outras mídias aparece mesmo sem prévia, mas nenhum arquivo é baixado.
+
+## Webhooks inválidos e avisos HTTP 401/403
+
+Se o destinatário do webhook responder `401` ou `403`, o Gateway **desativa automaticamente esse webhook**, salva essa decisão em `.stone-gateway/gateway-webhook.json` e mostra **um aviso** no Termux. O motivo pode ser visto na configuração `GET /v1/webhook` pelo campo `disabledReason`. Outros erros de conexão são exibidos no máximo uma vez por minuto para evitar flood de logs. Para reativar, configure uma URL HTTPS **do sistema receptor de verdade**, não a própria URL pública do Gateway, e ajuste a autenticação do receptor.
