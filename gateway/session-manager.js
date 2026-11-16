@@ -276,7 +276,12 @@ export async function createSessionManager({
     } catch (error) {
       session.lastError = 'Não foi possível registrar a pausa em disco.'
       record(session, 'error')
-      // Avoid automatically reconnecting if persistence failed; operator can retry.
+      // Even if persisting the marker fails, never leave a detached live socket
+      // running without Gateway ownership.
+      try { await oldSocket?.end?.(new Error('Stone Gateway pause failed')) }
+      catch { /* close is best-effort */ }
+      track(session, 'error', session.lastError)
+      notify(session, 'close')
       throw error
     }
     try { await oldSocket?.end?.(new Error('Stone Gateway session paused')) }
