@@ -27,7 +27,7 @@ export async function createSessionManager({ dataDir = path.resolve('.stone-gate
     const existing = sessions.get(id)
     if (existing) {
       if (existing.status !== 'close' && existing.status !== 'error') fail('session_already_running', 409)
-      await existing.socket?.end?.(new Error('Stone Gateway reconnect')).catch?.(() => {})
+      try { await existing.socket?.end?.(new Error('Stone Gateway reconnect')) } catch { /* socket already closed */ }
       sessions.delete(id)
     }
     if (sessions.size >= maxSessions) fail('session_limit_reached', 409)
