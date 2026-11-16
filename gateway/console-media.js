@@ -12,7 +12,12 @@ const MIME_TYPES = {
   video: { 'video/mp4': 'mp4', 'video/webm': 'webm' },
   audio: { 'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/aac': 'aac', 'audio/wav': 'wav', 'audio/webm': 'webm' },
   sticker: { 'image/webp': 'webp' },
-  document: {}
+  document: {
+    'application/pdf': 'pdf', 'text/plain': 'txt', 'application/zip': 'zip',
+    'application/msword': 'doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx'
+  }
 }
 const error = (code, status) => Object.assign(new Error(code), {status})
 
@@ -83,7 +88,7 @@ export function createConsoleMediaStore({
     }
     const permitted = MIME_TYPES[spec.type] || {}
     const extension = permitted[info.mime] || spec.extension
-    const mime = permitted[info.mime] ? info.mime : spec.mime
+    const mime = spec.type === 'document' ? 'application/octet-stream' : (permitted[info.mime] ? info.mime : spec.mime)
     return {
       bytes: Buffer.concat(chunks, total), mime,
       filename: 'stone-midia.' + extension,

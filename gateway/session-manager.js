@@ -283,7 +283,7 @@ export async function createSessionManager({
             direction:message.key?.fromMe ? 'enviada' : 'recebida',
             kind:description.kind, peer:name || description.peer,
             name, phone:description.phone, maskedPhone:description.maskedPhone, preview:description.preview,
-            detail:description.media ? 'Mídia disponível mediante solicitação.' : '',
+            detail:description.media ? 'Mídia identificada; arquivo ainda não carregado.' : '',
             mediaAvailable: false
           })
           if (description.media && seq) {
