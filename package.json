@@ -29,7 +29,9 @@
     "LICENSE",
     "!lib/**/*.test.mjs",
     "!lib/Socket/vox.mjs",
-    "!lib/**/*.bak"
+    "!lib/**/*.bak",
+    "gateway/**/*",
+    "!gateway/*.test.mjs"
   ],
   "scripts": {
     "preinstall": "node ./engine-requirements.js",
