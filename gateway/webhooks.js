@@ -24,6 +24,7 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
   let lastFailureLoggedAt = 0
   let configRevision = 0
   let writeQueue = Promise.resolve()
+  let pendingSaves = 0
   try {
     const saved = JSON.parse(await fs.readFile(file, 'utf8'))
     config = { url: validateURL(saved.url || ''), secret: typeof saved.secret === 'string' ? saved.secret : '', events: [...EVENTS].filter(e => (saved.events || [...EVENTS]).includes(e)), disabledReason: typeof saved.disabledReason === 'string' ? saved.disabledReason : '' }
@@ -63,9 +64,12 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
     // Invalidate pending webhook deliveries before writing the new setup.
     // Keep the previous working config if the disk write fails.
     const revision = ++configRevision
+    pendingSaves++
     try { await saveConfig(next) }
     catch {
       throw Object.assign(new Error('webhook_save_failed'), {status:500})
+    } finally {
+      pendingSaves--
     }
     if (revision !== configRevision) {
       throw Object.assign(new Error('webhook_configuration_changed_retry'), {status:409})
@@ -85,7 +89,7 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
   async function disableUnauthorized(target, status, revision) {
     // 401/403 means the receiver rejected our request, not a temporary WA issue.
     // Immediately stop retries, including concurrent in-flight callbacks.
-    if (!config.url || config.url !== target || revision !== configRevision) return
+    if (!config.url || config.url !== target || revision !== configRevision || pendingSaves > 0) return
     const next = { ...config, url: '', disabledReason: 'HTTP ' + status + ': webhook desativado automaticamente; confira o destino.' }
     ++configRevision
     config = next
