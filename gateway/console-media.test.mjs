@@ -13,7 +13,7 @@ const image = (extra={}) => ({
 const doc = data => ({ message:{documentMessage:{
   mediaKey:Buffer.from('test-key'),url:'https://media.whatsapp.net/file',
   fileLength:4,mimetype:'application/pdf',...data
-}})
+}}})
 
 test('media is downloaded only when explicitly requested, with an authenticated sequence',async()=>{
   let calls=0
