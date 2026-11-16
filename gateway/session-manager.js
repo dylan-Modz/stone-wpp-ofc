@@ -249,6 +249,18 @@ export async function createSessionManager({
       }
       notify(session, update.connection || session.status)
     })
+    const indexContacts = contacts => {
+      if (session.socket !== socket) return
+      for (const contact of (Array.isArray(contacts) ? contacts : [contacts]).slice(0, 300)) {
+        const id = String(contact?.id || '')
+        const phone = id.endsWith('@s.whatsapp.net') ? id.split('@')[0] : ''
+        const name = typeof contact?.name === 'string' && contact.name.trim()
+          ? contact.name.trim() : typeof contact?.notify === 'string' ? contact.notify.trim() : ''
+        rememberContact(/^\d{8,15}$/.test(phone) ? phone : '', name)
+      }
+    }
+    socket.ev.on('contacts.upsert', indexContacts)
+    socket.ev.on('contacts.update', indexContacts)
     socket.ev.on('messages.upsert', update => {
       if (session.socket !== socket) return
       const messages = (update.messages || []).slice(0, 20)
@@ -268,7 +280,7 @@ export async function createSessionManager({
             sessionId:session.id,
             direction:message.key?.fromMe ? 'enviada' : 'recebida',
             kind:description.kind, peer:name || description.peer,
-            name, phone:description.phone, preview:description.preview,
+            name, phone:description.phone, maskedPhone:description.maskedPhone, preview:description.preview,
             detail:description.media ? 'Mídia identificada (arquivo não baixado).' : ''
           })
         }
@@ -431,6 +443,7 @@ export async function createSessionManager({
     const name = contactNames.get(phone) || ''
     consoleFeed.add({
       sessionId:id, direction:'enviada', kind:'texto', name, phone,
+      maskedPhone:phone.replace(/^(\d{3})\d+(\d{4})$/, '$1••••$2'),
       peer:name || phone.replace(/^(\d{3})\d+(\d{4})$/, '$1••••$2'),
       preview:text, detail:'Envio aceito; entrega não confirmada.'
     })

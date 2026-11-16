@@ -36,7 +36,7 @@ export function describeContact(message) {
   const name=!key.fromMe && typeof message?.pushName==='string'
     ? scrub(message.pushName).slice(0,70) : ''
   const peer=name || (phone ? summarizePeer(jid) : (group?'Participante do grupo':'Contato'))
-  return {peer,name,phone}
+  return {peer,name,phone,maskedPhone:phone?summarizePeer(jid):''}
 }
 
 function unwrap(message) {
@@ -89,13 +89,13 @@ export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = 
     const cutoff = now() - ttlMs
     while (entries.length && (entries[0].at < cutoff || entries.length > capacity)) entries.shift()
   }
-  function add({sessionId, direction, kind = 'sistema', peer = '', name = '', phone = '', preview = '', detail = ''}) {
+  function add({sessionId, direction, kind = 'sistema', peer = '', name = '', phone = '', maskedPhone = '', preview = '', detail = ''}) {
     trim()
     entries.push({
       seq:++counter, at:now(), sessionId:String(sessionId || '').slice(0, 40),
       direction:['recebida','enviada','sistema'].includes(direction) ? direction : 'sistema',
       kind:scrub(kind).slice(0, 32), peer:scrub(peer).slice(0, 80),
-      name:scrub(name).slice(0, 70), phone:getContactPhone(String(phone)+'@s.whatsapp.net'),
+      name:scrub(name).slice(0, 70), phone:getContactPhone(String(phone)+'@s.whatsapp.net'), maskedPhone:scrub(maskedPhone).slice(0, 30),
       preview:scrub(preview), detail:scrub(detail).slice(0, 160)
     })
     trim()
