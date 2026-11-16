@@ -75,6 +75,13 @@ export async function createSessionManager({
   const maxSessions = 10
   const activity = []
   const consoleFeed = createConsoleFeed()
+  const contactNames = new Map()
+  function rememberContact(phone, name) {
+    if (!phone || !name) return
+    contactNames.delete(phone)
+    contactNames.set(phone, name.slice(0, 70))
+    if (contactNames.size > 500) contactNames.delete(contactNames.keys().next().value)
+  }
   const recentMessageKeys = new Set()
   function seenMessage(key) {
     if (!key) return false
@@ -251,15 +258,18 @@ export async function createSessionManager({
         for (const message of messages) {
           if (!message?.message) continue
           const uniqueKey = message.key?.id
-            ? session.id + ':' + message.key.id + ':' + String(message.key.remoteJid || '')
+            ? session.id + ':' + message.key.id
             : null
           if (seenMessage(uniqueKey)) continue
           const description = describeConsoleMessage(message)
+          if (!message.key?.fromMe) rememberContact(description.phone, description.name)
+          const name = description.name || contactNames.get(description.phone) || ''
           consoleFeed.add({
             sessionId:session.id,
             direction:message.key?.fromMe ? 'enviada' : 'recebida',
-            kind:description.kind, peer:description.peer, preview:description.preview,
-            detail:description.media ? 'Mídia recebida/enviada (sem download).' : ''
+            kind:description.kind, peer:name || description.peer,
+            name, phone:description.phone, preview:description.preview,
+            detail:description.media ? 'Mídia identificada (arquivo não baixado).' : ''
           })
         }
       }
@@ -416,10 +426,13 @@ export async function createSessionManager({
     if (!result?.key?.id) fail('send_not_confirmed', 502)
     session.sent++
     track(session, 'sent', 'Solicitação de envio aceita pelo WhatsApp.')
-    seenMessage(session.id + ':' + result.key.id + ':' + to)
+    seenMessage(session.id + ':' + result.key.id)
+    const phone = to.split('@')[0]
+    const name = contactNames.get(phone) || ''
     consoleFeed.add({
-      sessionId:id, direction:'enviada', kind:'texto', peer:to.replace(/^(\d{3})\d+(\d{4})@.*/, '$1••••$2'),
-      preview:text, detail:'Envio aceito pelo WhatsApp; entrega não confirmada.'
+      sessionId:id, direction:'enviada', kind:'texto', name, phone,
+      peer:name || phone.replace(/^(\d{3})\d+(\d{4})$/, '$1••••$2'),
+      preview:text, detail:'Envio aceito; entrega não confirmada.'
     })
     return { id: result.key.id, to, sessionId: id }
   }
