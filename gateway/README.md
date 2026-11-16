@@ -51,3 +51,12 @@ curl -sS -H "Authorization: Bearer $(cat ~/.stone-token-teste)" http://127.0.0.1
 ```
 
 A porta `3018` é a usada no teste do Termux; para a porta padrão, ajuste para `3017`. Evite tentar vincular repetidamente a conta enquanto uma reconexão já estiver em andamento.
+
+
+## Logs do Gateway e sessões antigas
+
+O modo padrão do Gateway é **warn**: elimina a enxurrada de mensagens informativas de sincronização e histórico no terminal (por exemplo, `histNotification`, `connected to WA` e `opened connection to WA`), **sem parar a sincronização real**. Alertas e erros continuam visíveis. Isso afeta apenas o processo do Gateway: bots existentes que utilizam a biblioteca continuam com suas próprias configurações de log.
+
+Para consultar os logs detalhados quando estiver diagnosticando um problema, use `STONE_GATEWAY_LOG_LEVEL=info` ou `STONE_GATEWAY_LOG_LEVEL=debug` ao executar `npm run gateway`. Evite compartilhar logs brutos: o protocolo pode incluir identificadores e metadados.
+
+Quando uma sessão recebe `401` (desvinculada), o Gateway mantém os arquivos de credenciais, mas registra um marcador local `.stone-relink-required.json` na pasta daquela sessão para **não insistir na restauração inválida nos próximos reinícios**. O marcador não altera `creds.json`. É possível tentar iniciar a sessão manualmente pelo endpoint `POST /v1/sessions`; se a autenticação não for mais válida, crie uma nova sessão e faça novo pareamento. Sessões saudáveis são restauradas normalmente.

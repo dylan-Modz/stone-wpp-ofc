@@ -84,6 +84,7 @@ export async function createSessionManager({
     if (typeof id !== 'string' || !ID.test(id)) fail('invalid_session_id')
     return id
   }
+  const blockedMarker = id => path.join(dataDir, 'sessions', id, '.stone-relink-required.json')
   function record(session, status) {
     session.status = status
     session.updatedAt = new Date().toISOString()
@@ -118,6 +119,14 @@ export async function createSessionManager({
     session.lastError = reason || reasonText(code)
     if (PERMANENT.has(code)) {
       record(session, 'error')
+      if (code === DisconnectReason.loggedOut) {
+        // Credentials were rejected: don't auto-restore them on every reboot.
+        // Preserve all files for diagnosis or manual re-pairing.
+        void fs.writeFile(blockedMarker(session.id), JSON.stringify({
+          disconnectCode: code, failedAt: new Date().toISOString()
+        }), { mode: 0o600 }).catch(() => logger.warn?.('[stone-gateway] Não foi possível registrar sessão desvinculada: ' + session.id))
+        logger.warn?.('[stone-gateway] Sessão ' + session.id + ' desvinculada (401); pareamento necessário. Não será restaurada automaticamente.')
+      }
       notify(session, 'close')
       return
     }
@@ -178,6 +187,9 @@ export async function createSessionManager({
         session.lastError = null
         session.disconnectCode = null
         session.reconnectAttempts = 0
+        void fs.unlink(blockedMarker(session.id)).catch(error => {
+          if (error.code !== 'ENOENT') logger.warn?.('[stone-gateway] Não foi possível limpar marca da sessão ' + session.id)
+        })
         record(session, 'open')
       } else if (update.connection === 'close') {
         if (session.connectTimer) clearTimeout(session.connectTimer)
@@ -246,6 +258,8 @@ export async function createSessionManager({
     if (sessions.size >= maxSessions) fail('session_limit_reached', 409)
     const dir = path.join(dataDir, 'sessions', id)
     await fs.mkdir(dir, { recursive: true, mode: 0o700 })
+    // An explicit POST /v1/sessions is a manual retry, even for a marked session.
+    await fs.unlink(blockedMarker(id)).catch(error => { if (error.code !== 'ENOENT') throw error })
     const { state, saveCreds } = await authFactory(dir)
     session = {
       id, authState: state, saveCreds,
@@ -322,6 +336,13 @@ export async function createSessionManager({
       if (!entry.isDirectory() || !ID.test(entry.name)) continue
       try {
         await fs.access(path.join(dataDir, 'sessions', entry.name, 'creds.json'))
+        try {
+          await fs.access(blockedMarker(entry.name))
+          logger.warn?.('[stone-gateway] Sessão antiga ' + entry.name + ' ignorada na inicialização: vínculo recusado anteriormente.')
+          continue
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error
+        }
         await start(entry.name)
       } catch (error) {
         if (error.code !== 'ENOENT') logger.warn?.('[stone-gateway] Não foi possível restaurar sessão ' + entry.name)

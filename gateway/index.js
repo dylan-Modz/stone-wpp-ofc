@@ -1,5 +1,7 @@
 import { createSessionManager } from './session-manager.js'
 import { createGatewayHttpServer } from './server.js'
+import makeWASocket from '../lib/index.js'
+import baseLogger from '../lib/Utils/logger.js'
 
 const token = process.env.STONE_API_TOKEN
 if (!token || token.length < 24) {
@@ -10,9 +12,20 @@ if (!token || token.length < 24) {
   const port = Number(process.env.STONE_PORT || 3017)
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('STONE_PORT inválida')
   const origins = (process.env.STONE_ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean)
+  const logLevel = String(process.env.STONE_GATEWAY_LOG_LEVEL || 'warn').trim().toLowerCase()
+  if (!['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'].includes(logLevel)) {
+    console.error('[stone-gateway] STONE_GATEWAY_LOG_LEVEL inválido. Use warn, error, info, debug, trace ou silent.')
+    process.exit(1)
+  }
+  // Keep the library's normal logger unchanged for existing bots.
+  const socketLogger = baseLogger.child({ class: 'stoneGateway' })
+  socketLogger.level = logLevel
   let manager
   try {
-    manager = await createSessionManager({ dataDir: process.env.STONE_DATA_DIR })
+    manager = await createSessionManager({
+      dataDir: process.env.STONE_DATA_DIR,
+      socketFactory: config => makeWASocket({ ...config, logger: socketLogger })
+    })
   } catch (error) {
     if (error.message === 'gateway_data_directory_in_use') {
       console.error('[stone-gateway] Esta pasta de sessão já está sendo usada por outro processo. Encerre o Gateway antigo antes de iniciar novamente.')
