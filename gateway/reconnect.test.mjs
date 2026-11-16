@@ -221,3 +221,31 @@ test('terminal uses pushName, phone alternates and contact cache instead of expo
     assert.equal(sent.phone,'5511888888888')
   }finally{await x.cleanup()}
 })
+
+test('terminal marks eligible media as on-demand while view-once has no download action',async()=>{
+  const x=await setup()
+  try{
+    await x.manager.start('media-teste')
+    x.sockets[0].ev.emit('connection.update',{connection:'open'})
+    x.sockets[0].ev.emit('messages.upsert',{
+      type:'notify',messages:[
+        {key:{id:'IMAGE1',remoteJid:'5511888888888@s.whatsapp.net'},
+          message:{imageMessage:{
+            mediaKey:Buffer.from('media-key'),directPath:'/media-path',
+            mimetype:'image/jpeg',fileLength:104
+          }}},
+        {key:{id:'ONCE1',remoteJid:'5511888888888@s.whatsapp.net'},
+          message:{viewOnceMessageV2:{message:{imageMessage:{
+            mediaKey:Buffer.from('media-key'),directPath:'/media-path',
+            mimetype:'image/jpeg',fileLength:104
+          }}}}}
+      ]
+    })
+    const records=x.manager.getConsole({includePreview:true}).entries.filter(e=>e.kind==='imagem')
+    assert.equal(records.length,2)
+    assert.equal(records[0].mediaAvailable,true)
+    assert.equal(records[1].mediaAvailable,false)
+    assert.equal(JSON.stringify(records).includes('/media-path'),false)
+    assert.equal(JSON.stringify(records).includes('media-key'),false)
+  }finally{await x.cleanup()}
+})
