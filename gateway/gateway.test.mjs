@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { createGatewayHttpServer } from './server.js'
 const token = 'test-only-super-long-strong-token-123'
 const manager = {
+  getConsoleMedia:async seq=>({bytes:Buffer.from('PHOTO'),mime:'image/jpeg',filename:'stone-midia.jpg',inline:true}),
   getConsole: ({ since, includePreview }) => ({
     entries:[{seq:1,sessionId:'alpha',direction:'recebida',kind:'texto',
       ...(includePreview ? {preview:'conteúdo privado'} : {})}],
@@ -91,3 +92,19 @@ test('terminal API requires Bearer token and hides previews unless explicitly re
     assert.equal((await fetch(base+'/v1/console?since=abc',{headers})).status,400);
   });
 });
+
+test('media endpoint requires Bearer token and returns safe file headers only on demand',async()=>{
+  await withServer(async base=>{
+    const path='/v1/console/media/1'
+    assert.equal((await fetch(base+path)).status,401)
+    const headers={Authorization:'Bearer '+token}
+    const res=await fetch(base+path,{headers})
+    assert.equal(res.status,200)
+    assert.equal(res.headers.get('content-type'),'image/jpeg')
+    assert.equal(res.headers.get('cache-control'),'no-store, private')
+    assert.equal(res.headers.get('x-content-type-options'),'nosniff')
+    assert.equal(res.headers.get('content-disposition'),'inline; filename="stone-midia.jpg"')
+    assert.equal(await res.text(),'PHOTO')
+    assert.equal((await fetch(base+'/v1/console/media/invalid',{headers})).status,404)
+  })
+})
