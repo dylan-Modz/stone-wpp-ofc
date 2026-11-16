@@ -3,7 +3,7 @@
 const scrub = value => String(value ?? '')
   .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
   .replace(/\s+/g, ' ')
-  .trim().slice(0, 220)
+  .trim().slice(0, 4096)
 
 export function summarizePeer(jid) {
   const raw = String(jid || '')
@@ -14,6 +14,29 @@ export function summarizePeer(jid) {
   return digits.length > 7
     ? digits.slice(0, 3) + '••••' + digits.slice(-4)
     : '••••' + digits.slice(-3)
+}
+
+export function getContactPhone(jid) {
+  const value=String(jid || '')
+  // A LID is not a telephone number. Never present an opaque LID as a phone.
+  if (!value.endsWith('@s.whatsapp.net')) return ''
+  const phone=value.split('@')[0].split(':')[0]
+  return /^\d{8,15}$/.test(phone) ? phone : ''
+}
+
+export function describeContact(message) {
+  const key=message?.key || {}
+  const group=String(key.remoteJid||'').endsWith('@g.us')
+  const jid=group
+    ? (getContactPhone(key.participantAlt) ? key.participantAlt : key.participant)
+    : (getContactPhone(key.remoteJidAlt) ? key.remoteJidAlt : key.remoteJid)
+  const phone=getContactPhone(jid)
+  // pushName is available on received messages, but not on every protocol event.
+  // Names received from other clients are presentation data only, never HTML.
+  const name=!key.fromMe && typeof message?.pushName==='string'
+    ? scrub(message.pushName).slice(0,70) : ''
+  const peer=name || (phone ? summarizePeer(jid) : (group?'Participante do grupo':'Contato'))
+  return {peer,name,phone,maskedPhone:phone?summarizePeer(jid):''}
 }
 
 function unwrap(message) {
@@ -56,7 +79,7 @@ export function describeConsoleMessage(message) {
   } else if (body.protocolMessage) {
     kind = 'sistema'
   }
-  return {kind,media,preview:scrub(preview),peer:summarizePeer(message?.key?.participant || message?.key?.remoteJid)}
+  return {kind,media,preview:scrub(preview),...describeContact(message)}
 }
 
 export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = Date.now} = {}) {
@@ -66,12 +89,13 @@ export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = 
     const cutoff = now() - ttlMs
     while (entries.length && (entries[0].at < cutoff || entries.length > capacity)) entries.shift()
   }
-  function add({sessionId, direction, kind = 'sistema', peer = '', preview = '', detail = ''}) {
+  function add({sessionId, direction, kind = 'sistema', peer = '', name = '', phone = '', maskedPhone = '', preview = '', detail = ''}) {
     trim()
     entries.push({
       seq:++counter, at:now(), sessionId:String(sessionId || '').slice(0, 40),
       direction:['recebida','enviada','sistema'].includes(direction) ? direction : 'sistema',
-      kind:scrub(kind).slice(0, 32), peer:scrub(peer).slice(0, 40),
+      kind:scrub(kind).slice(0, 32), peer:scrub(peer).slice(0, 80),
+      name:scrub(name).slice(0, 70), phone:getContactPhone(String(phone)+'@s.whatsapp.net'), maskedPhone:scrub(maskedPhone).slice(0, 30),
       preview:scrub(preview), detail:scrub(detail).slice(0, 160)
     })
     trim()
@@ -83,9 +107,10 @@ export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = 
       ? entries.slice(-40)
       : entries.filter(item => item.seq > cursor).slice(-60)
     return {
-      entries:selected.map(({at,preview,...entry})=>({
+      entries:selected.map(({at,preview,phone,...entry})=>({
         ...entry, timestamp:new Date(at).toISOString(),
-        ...(includePreview && preview ? {preview} : {})
+        ...(includePreview && preview ? {preview} : {}),
+        ...(includePreview && phone ? {phone} : {})
       })),
       cursor:counter,
       retentionMinutes:Math.round(ttlMs / 60000)

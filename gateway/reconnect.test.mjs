@@ -188,3 +188,36 @@ test('terminal follows live received text/media and outgoing sends with previews
     assert.equal(x.manager.getConsole({since:previous,includePreview:true}).entries.length,0,'ignore history sync')
   }finally{await x.cleanup()}
 })
+
+
+test('terminal uses pushName, phone alternates and contact cache instead of exposing LID',async()=>{
+  const x=await setup()
+  try{
+    await x.manager.start('contato')
+    x.sockets[0].ev.emit('connection.update',{connection:'open'})
+    x.sockets[0].ev.emit('messages.upsert',{
+      type:'notify',
+      messages:[{pushName:'Maria',key:{
+        id:'RX-LID-1',remoteJid:'38951729508382@lid',
+        remoteJidAlt:'5511987654321@s.whatsapp.net',fromMe:false
+      },message:{conversation:'mensagem de teste completa'}}]
+    })
+    const hidden=x.manager.getConsole().entries.find(e=>e.kind==='texto')
+    assert.equal(hidden.name,'Maria')
+    assert.equal(hidden.maskedPhone,'551••••4321')
+    assert.equal(hidden.preview,undefined)
+    assert.equal(hidden.phone,undefined)
+    assert.equal(JSON.stringify(hidden).includes('38951729508382'),false)
+    const visible=x.manager.getConsole({includePreview:true}).entries.find(e=>e.kind==='texto')
+    assert.equal(visible.preview,'mensagem de teste completa')
+    assert.equal(visible.phone,'5511987654321')
+
+    x.sockets[0].ev.emit('contacts.upsert',[{
+      id:'5511888888888@s.whatsapp.net',name:'Carlos da agenda'
+    }])
+    await x.manager.send('contato','5511888888888@s.whatsapp.net','resposta')
+    const sent=x.manager.getConsole({includePreview:true}).entries.find(e=>e.direction==='enviada'&&e.kind==='texto')
+    assert.equal(sent.name,'Carlos da agenda')
+    assert.equal(sent.phone,'5511888888888')
+  }finally{await x.cleanup()}
+})

@@ -37,3 +37,45 @@ test('webhook signatures cover the exact original request body',async()=>{
     assert.equal(JSON.parse(sent.body).data.sessionId,'bot1')
   }finally{await rm(dir,{recursive:true,force:true})}
 })
+
+
+test('401 automatically disables webhook, persists state and stops warning flood', async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'stone-hook-reject-'))
+  const warnings=[]
+  let calls=0
+  try{
+    const service=await createWebhookService(dir,{
+      logger:{warn:msg=>warnings.push(msg)},
+      fetchImpl:async()=>{calls++;return {ok:false,status:401}}
+    })
+    await service.setConfig({url:'https://webhook-invalid.example.com/v1/health',secret:'this-is-a-private-signing-secret'})
+    for(let i=0;i<10;i++)service.emit('messages.upsert',{message:'test'})
+    for(let i=0;i<60 && service.getConfig().url;i++)await new Promise(resolve=>setTimeout(resolve,5))
+    assert.equal(service.getConfig().url,'')
+    assert.match(service.getConfig().disabledReason,/HTTP 401/)
+    const count=calls
+    for(let i=0;i<100;i++)service.emit('messages.upsert',{message:'test'})
+    await new Promise(resolve=>setTimeout(resolve,50))
+    assert.equal(calls,count,'disabling the receiver stops further attempts')
+    assert.equal(warnings.filter(msg=>msg.includes('Webhook desativado')).length,1)
+    const reloaded=await createWebhookService(dir,{logger:{warn(){}}})
+    assert.equal(reloaded.getConfig().url,'','disabled config survives restart')
+    assert.match(reloaded.getConfig().disabledReason,/HTTP 401/)
+    await reloaded.setConfig({url:'https://novo.example.com/notificacoes'})
+    assert.equal(reloaded.getConfig().disabledReason,null)
+  }finally{await rm(dir,{recursive:true,force:true})}
+})
+
+test('403 also disables a rejected webhook',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'stone-hook-forbidden-'))
+  try{
+    const service=await createWebhookService(dir,{
+      logger:{warn(){}},fetchImpl:async()=>({status:403,ok:false})
+    })
+    await service.setConfig({url:'https://receiver.example.com/events'})
+    service.emit('call',{id:'x'})
+    for(let i=0;i<60 && service.getConfig().url;i++)await new Promise(resolve=>setTimeout(resolve,5))
+    assert.equal(service.getConfig().url,'')
+    assert.match(service.getConfig().disabledReason,/403/)
+  }finally{await rm(dir,{recursive:true,force:true})}
+})
