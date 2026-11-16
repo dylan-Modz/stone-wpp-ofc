@@ -91,7 +91,9 @@ export async function createSessionManager({
       timestamp: new Date().toISOString()
     })
     if (activity.length > 50) activity.length = 50
-    consoleFeed.add({sessionId: session.id, direction:'sistema', kind:event, detail})
+    if (event !== 'received' && event !== 'sent') {
+      consoleFeed.add({sessionId: session.id, direction:'sistema', kind:event, detail})
+    }
   }
   let webhooks
   try {
