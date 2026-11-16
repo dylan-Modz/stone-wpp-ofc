@@ -10,7 +10,17 @@ if (!token || token.length < 24) {
   const port = Number(process.env.STONE_PORT || 3017)
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('STONE_PORT inválida')
   const origins = (process.env.STONE_ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean)
-  const manager = await createSessionManager({ dataDir: process.env.STONE_DATA_DIR })
+  let manager
+  try {
+    manager = await createSessionManager({ dataDir: process.env.STONE_DATA_DIR })
+  } catch (error) {
+    if (error.message === 'gateway_data_directory_in_use') {
+      console.error('[stone-gateway] Esta pasta de sessão já está sendo usada por outro processo. Encerre o Gateway antigo antes de iniciar novamente.')
+    } else {
+      console.error('[stone-gateway] Não foi possível iniciar o Gateway:', error.message)
+    }
+    process.exit(1)
+  }
   await manager.restore()
   const server = createGatewayHttpServer({ manager, token, origins })
   server.listen(port, host, () => {
