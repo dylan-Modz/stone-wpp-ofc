@@ -55,10 +55,11 @@ export function createGatewayHttpServer({ manager, token, origins = [] } = {}) {
         if (req.method === 'GET') return respond(res, 200, manager.getWebhook())
         if (req.method === 'PUT') return respond(res, 200, await manager.setWebhook(await readJSON(req)))
       }
-      const match = p.match(/^\/v1\/sessions\/([a-zA-Z0-9_-]{1,40})(?:\/(pair|messages))?$/)
+      const match = p.match(/^\/v1\/sessions\/([a-zA-Z0-9_-]{1,40})(?:\/(pair|messages|pause))?$/)
       if (match) {
         const [, id, action] = match
         if (!action && req.method === 'GET') return respond(res, 200, await manager.get(id))
+        if (action === 'pause' && req.method === 'POST') return respond(res, 200, await manager.pause(id))
         if (action === 'pair' && req.method === 'POST') return respond(res, 200, await manager.pair(id, (await readJSON(req)).phoneNumber))
         if (action === 'messages' && req.method === 'POST') {
           const body = await readJSON(req)

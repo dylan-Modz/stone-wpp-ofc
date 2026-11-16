@@ -85,6 +85,17 @@ export async function createSessionManager({
     return id
   }
   const blockedMarker = id => path.join(dataDir, 'sessions', id, '.stone-relink-required.json')
+  const pausedMarker = id => path.join(dataDir, 'sessions', id, '.stone-paused.json')
+  function newSession(id, state, saveCreds, status = 'connecting') {
+    return {
+      id, authState: state, saveCreds,
+      status, user: state?.creds?.account && state?.creds?.me?.id || null,
+      received: 0, sent: 0, qr: null, pairingCode: null,
+      socket: null, updatedAt: new Date().toISOString(),
+      lastError: null, disconnectCode: null, reconnectAttempts: 0,
+      nextRetryAt: null, retryTimer: null, connectTimer: null
+    }
+  }
   function record(session, status) {
     session.status = status
     session.updatedAt = new Date().toISOString()
@@ -231,12 +242,39 @@ export async function createSessionManager({
       void Promise.resolve().then(() => socket.end?.(new Error('Stone Gateway connection timeout'))).catch(() => {})
     }, connectionTimeoutMs)
   }
+  async function pause(id) {
+    const session = sessions.get(safe(id))
+    if (!session) fail('session_not_found', 404)
+    if (session.status === 'paused') return summary(session)
+    // Mark the session as paused before ending its socket, so the close event
+    // does not trigger a reconnect. Credentials stay intact.
+    clearTimers(session)
+    const oldSocket = session.socket
+    session.socket = null
+    session.qr = null
+    session.pairingCode = null
+    record(session, 'paused')
+    try {
+      await fs.writeFile(pausedMarker(id), JSON.stringify({
+        pausedAt: new Date().toISOString()
+      }), { mode: 0o600 })
+    } catch (error) {
+      session.lastError = 'Não foi possível registrar a pausa em disco.'
+      record(session, 'error')
+      // Avoid automatically reconnecting if persistence failed; operator can retry.
+      throw error
+    }
+    try { await oldSocket?.end?.(new Error('Stone Gateway session paused')) }
+    catch { /* Socket may already have closed */ }
+    notify(session, 'paused')
+    return summary(session)
+  }
   async function start(id) {
     safe(id)
     if (stopped) fail('gateway_stopping', 503)
     let session = sessions.get(id)
     if (session) {
-      if (!['close', 'error'].includes(session.status)) fail('session_already_running', 409)
+      if (!['close', 'error', 'paused'].includes(session.status)) fail('session_already_running', 409)
       clearTimers(session)
       const oldSocket = session.socket
       session.socket = null
@@ -244,6 +282,7 @@ export async function createSessionManager({
         try { await oldSocket.end?.(new Error('Stone Gateway reconnect')) }
         catch { /* already closed */ }
       }
+      await fs.unlink(pausedMarker(id)).catch(error => { if (error.code !== 'ENOENT') throw error })
       session.reconnectAttempts = 0
       session.lastError = null
       session.disconnectCode = null
@@ -260,14 +299,9 @@ export async function createSessionManager({
     await fs.mkdir(dir, { recursive: true, mode: 0o700 })
     // An explicit POST /v1/sessions is a manual retry, even for a marked session.
     await fs.unlink(blockedMarker(id)).catch(error => { if (error.code !== 'ENOENT') throw error })
+    await fs.unlink(pausedMarker(id)).catch(error => { if (error.code !== 'ENOENT') throw error })
     const { state, saveCreds } = await authFactory(dir)
-    session = {
-      id, authState: state, saveCreds,
-      status: 'connecting', user: null, received: 0, sent: 0,
-      qr: null, pairingCode: null, socket: null, updatedAt: new Date().toISOString(),
-      lastError: null, disconnectCode: null, reconnectAttempts: 0,
-      nextRetryAt: null, retryTimer: null, connectTimer: null
-    }
+    session = newSession(id, state, saveCreds)
     sessions.set(id, session)
     try { await spawn(session) }
     catch (error) {
@@ -337,6 +371,18 @@ export async function createSessionManager({
       try {
         await fs.access(path.join(dataDir, 'sessions', entry.name, 'creds.json'))
         try {
+          await fs.access(pausedMarker(entry.name))
+          // Preserve paused status in the panel after a Gateway restart, but do
+          // not open any socket or expose the credentials to another process.
+          if (sessions.size < maxSessions) {
+            const { state, saveCreds } = await authFactory(path.join(dataDir, 'sessions', entry.name))
+            sessions.set(entry.name, newSession(entry.name, state, saveCreds, 'paused'))
+          }
+          continue
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error
+        }
+        try {
           await fs.access(blockedMarker(entry.name))
           logger.warn?.('[stone-gateway] Sessão antiga ' + entry.name + ' ignorada na inicialização: vínculo recusado anteriormente.')
           continue
@@ -363,7 +409,7 @@ export async function createSessionManager({
     await releaseLock()
   }
   return {
-    start, get, list, pair, send, restore, shutdown,
+    start, pause, get, list, pair, send, restore, shutdown,
     getWebhook: () => webhooks.getConfig(), setWebhook: value => webhooks.setConfig(value)
   }
 }
