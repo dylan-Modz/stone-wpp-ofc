@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createConsoleFeed, describeConsoleMessage, summarizePeer } from './console-feed.js'
+import { createConsoleFeed, describeConsoleMessage, describeContact, summarizePeer } from './console-feed.js'
 
 test('mensagens de texto, imagem, audio e figurinha são classificadas sem baixar mídia',()=>{
   const text = describeConsoleMessage({
@@ -46,7 +46,41 @@ test('conteúdo de texto é limitado, limpo e nunca processado como comandos ANS
   const feed=createConsoleFeed()
   feed.add({sessionId:'test',direction:'enviada',kind:'texto',preview:'\u001b[31m'+'A'.repeat(500)})
   const item=feed.read({includePreview:true}).entries[0]
-  assert.equal(item.preview.length<=220,true)
+  assert.equal(item.preview.length<=4096,true)
   assert.equal(item.preview.includes('\u001b'),false)
   assert.equal(item.direction,'enviada')
+})
+
+test('sender pushName takes precedence over LID, and number comes from PN alternate only',()=>{
+  const incoming=describeConsoleMessage({
+    pushName:'Maria da Silva',
+    key:{
+      remoteJid:'1122334455667788@lid',
+      remoteJidAlt:'559188881234@s.whatsapp.net',
+      fromMe:false
+    },message:{conversation:'mensagem recebida de Maria'}
+  })
+  assert.equal(incoming.name,'Maria da Silva')
+  assert.equal(incoming.phone,'559188881234')
+  assert.equal(incoming.maskedPhone,'559••••1234')
+  assert.equal(incoming.preview,'mensagem recebida de Maria')
+  const lidOnly=describeContact({key:{remoteJid:'1122334455667788@lid'}})
+  assert.equal(lidOnly.phone,'')
+  assert.equal(lidOnly.peer,'Contato')
+  assert.equal(JSON.stringify(lidOnly).includes('1122334455667788'),false)
+  const group=describeContact({pushName:'João',key:{remoteJid:'120363111222@g.us',participant:'334455@lid',participantAlt:'5511987654321@s.whatsapp.net'}})
+  assert.equal(group.name,'João')
+  assert.equal(group.phone,'5511987654321')
+})
+test('full text and original phone are only returned under explicit preview',()=>{
+  const feed=createConsoleFeed()
+  feed.add({sessionId:'test',direction:'recebida',kind:'texto',name:'Maria',peer:'Maria',phone:'5511987654321',maskedPhone:'551••••4321',preview:'O'.repeat(3500)})
+  const hidden=feed.read().entries[0]
+  assert.equal(hidden.preview,undefined)
+  assert.equal(hidden.phone,undefined)
+  assert.equal(hidden.name,'Maria')
+  assert.equal(hidden.maskedPhone,'551••••4321')
+  const visible=feed.read({includePreview:true}).entries[0]
+  assert.equal(visible.preview.length,3500)
+  assert.equal(visible.phone,'5511987654321')
 })
