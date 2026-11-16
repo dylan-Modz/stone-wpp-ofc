@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '../lib/index.js'
 import { createWebhookService } from './webhooks.js'
 import { createConsoleFeed, describeConsoleMessage } from './console-feed.js'
+import { createConsoleMediaStore } from './console-media.js'
 
 const ID = /^[a-zA-Z0-9_-]{1,40}$/
 const PHONE = /^\d{10,15}$/
@@ -75,6 +76,7 @@ export async function createSessionManager({
   const maxSessions = 10
   const activity = []
   const consoleFeed = createConsoleFeed()
+  const consoleMedia = createConsoleMediaStore()
   const contactNames = new Map()
   function rememberContact(phone, name) {
     if (!phone || !name) return
@@ -276,13 +278,19 @@ export async function createSessionManager({
           const description = describeConsoleMessage(message)
           if (!message.key?.fromMe) rememberContact(description.phone, description.name)
           const name = description.name || contactNames.get(description.phone) || ''
-          consoleFeed.add({
+          const seq = consoleFeed.add({
             sessionId:session.id,
             direction:message.key?.fromMe ? 'enviada' : 'recebida',
             kind:description.kind, peer:name || description.peer,
             name, phone:description.phone, maskedPhone:description.maskedPhone, preview:description.preview,
-            detail:description.media ? 'Mídia identificada (arquivo não baixado).' : ''
+            detail:description.media ? 'Mídia disponível mediante solicitação.' : '',
+            mediaAvailable: false
           })
+          if (description.media && seq) {
+            // Register only the encrypted WhatsApp reference in bounded RAM.
+            // Actual bytes are downloaded *only* after an authenticated click.
+            if (consoleMedia.register(seq, message)) consoleFeed.setMediaAvailable(seq)
+          }
         }
       }
       const incoming = (update.messages || []).filter(m => !m.key?.fromMe).length
@@ -496,6 +504,7 @@ export async function createSessionManager({
     start, pause, get, list, pair, send, restore, shutdown,
     getActivity: () => activity.slice(0, 30),
     getConsole: query => consoleFeed.read(query),
+    getConsoleMedia: seq => consoleMedia.read(seq),
     getWebhook: () => webhooks.getConfig(), setWebhook: value => webhooks.setConfig(value)
   }
 }

@@ -89,16 +89,22 @@ export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = 
     const cutoff = now() - ttlMs
     while (entries.length && (entries[0].at < cutoff || entries.length > capacity)) entries.shift()
   }
-  function add({sessionId, direction, kind = 'sistema', peer = '', name = '', phone = '', maskedPhone = '', preview = '', detail = ''}) {
+  function add({sessionId, direction, kind = 'sistema', peer = '', name = '', phone = '', maskedPhone = '', preview = '', detail = '', mediaAvailable = false}) {
     trim()
+    const seq = ++counter
     entries.push({
-      seq:++counter, at:now(), sessionId:String(sessionId || '').slice(0, 40),
+      seq, at:now(), sessionId:String(sessionId || '').slice(0, 40),
       direction:['recebida','enviada','sistema'].includes(direction) ? direction : 'sistema',
       kind:scrub(kind).slice(0, 32), peer:scrub(peer).slice(0, 80),
       name:scrub(name).slice(0, 70), phone:getContactPhone(String(phone)+'@s.whatsapp.net'), maskedPhone:scrub(maskedPhone).slice(0, 30),
-      preview:scrub(preview), detail:scrub(detail).slice(0, 160)
+      preview:scrub(preview), detail:scrub(detail).slice(0, 160), mediaAvailable:Boolean(mediaAvailable)
     })
     trim()
+    return seq
+  }
+  function setMediaAvailable(seq) {
+    const entry = entries.find(item => item.seq === seq)
+    if (entry) entry.mediaAvailable = true
   }
   function read({since = 0, includePreview = false} = {}) {
     trim()
@@ -116,5 +122,5 @@ export function createConsoleFeed({capacity = 80, ttlMs = 15 * 60 * 1000, now = 
       retentionMinutes:Math.round(ttlMs / 60000)
     }
   }
-  return {add,read}
+  return {add,read,setMediaAvailable}
 }
