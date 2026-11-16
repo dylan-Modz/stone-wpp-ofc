@@ -75,3 +75,13 @@ Não existe exclusão definitiva de credenciais pelo painel nesta versão. Para 
 ## Eventos recentes do painel (somente em memória)
 
 `GET /v1/activity` — retorna até 30 eventos operacionais recentes, como `open`, `error`, `reconnecting`, `paused`, `sent` e `received`, exigindo o mesmo token Bearer da API. O Gateway mantém no máximo 50 eventos em memória, descartados ao reiniciar. **Não armazena o texto das mensagens, o destino, os códigos de pareamento ou o token no feed.** Os contadores continuam sendo calculados apenas desde o início do processo.
+
+## Terminal ao vivo do Stone Studio
+
+O Gateway fornece `GET /v1/console?since=0` (exige token Bearer). A resposta contém `entries`, `cursor` e `retentionMinutes`; chamadas posteriores usam `since=<cursor>` para receber somente as novas linhas. Cada entrada inclui direção (`recebida`, `enviada`, `sistema`), tipo (`texto`, `imagem`, `vídeo`, `áudio`, `figurinha`, `documento` etc.), sessão, horário e identificador de conversa **mascarado**.
+
+**Privacidade:** prévias de texto e legendas **não são enviadas por padrão**. Somente o pedido explícito `GET /v1/console?since=0&preview=1` inclui `preview` (até 220 caracteres). No painel, a pessoa precisa ativar **Mostrar prévias de mensagens**. O Gateway armazena texto recente **somente em RAM**, até 80 linhas por até 15 minutos: use com token privado, HTTPS e dispositivo de confiança. As entradas não são persistidas e somem ao reiniciar. Não são baixadas imagens, vídeos, áudios ou anexos; somente o tipo de mídia é identificado.
+
+O terminal recebe mensagens novas via `messages.upsert` e confirmações de envio pela API; ignora a sincronização de histórico (`type: append`) para evitar flood de conversas antigas. Um envio aceito pelo socket não significa entrega ou leitura. O painel consulta eventos a cada 2,5 segundos enquanto está aberto.
+
+Se a interface for atualizada antes do Gateway, ela usa o endpoint legado `/v1/activity` como modo de compatibilidade, sem prévia ou classificação de mídia. Atualize o Gateway para habilitar tudo.
