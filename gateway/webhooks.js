@@ -31,7 +31,7 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
   } catch (error) {
     if (error.code !== 'ENOENT') logger.warn?.('[stone-gateway] Configuração de webhook inválida; desabilitando até revisão.')
   }
-  function publicConfig() { return { url: config.url, events: [...config.events], signed: Boolean(config.secret), disabledReason: config.disabledReason || null } }
+  function publicConfig() { return { url: config.url, enabled: Boolean(config.url && !config.disabledReason), events: [...config.events], signed: Boolean(config.secret), disabledReason: config.disabledReason || null } }
   function saveConfig(next) {
     // Manual saves and automatic disable may overlap. Serialize disk writes so
     // a failed request cannot corrupt a new valid webhook configuration.
@@ -90,10 +90,10 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
     // 401/403 means the receiver rejected our request, not a temporary WA issue.
     // Immediately stop retries, including concurrent in-flight callbacks.
     if (!config.url || config.url !== target || revision !== configRevision || pendingSaves > 0) return
-    const next = { ...config, url: '', disabledReason: 'HTTP ' + status + ': webhook desativado automaticamente; confira o destino.' }
+    const next = { ...config, disabledReason: 'HTTP ' + status + ': entregas suspensas; confira a autenticação e o endpoint receptor.' }
     ++configRevision
     config = next
-    logger.warn?.('[stone-gateway] Webhook desativado após HTTP ' + status + '. Confira a URL e a autorização no sistema de destino.')
+    logger.warn?.('[stone-gateway] Webhook com envios suspensos após HTTP ' + status + '. URL e chave mantidas; confira o receptor.')
     lastFailureLoggedAt = Date.now()
     try { await saveConfig(next) }
     catch { logger.warn?.('[stone-gateway] Não foi possível salvar a desativação do webhook no disco.') }
@@ -101,7 +101,7 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
   async function deliver(event, data) {
     const target = config.url
     const revision = configRevision
-    if (!target || !config.events.includes(event)) return
+    if (!target || config.disabledReason || !config.events.includes(event)) return
     const body = JSON.stringify({ id: cryptoRandomId(), event, timestamp: new Date().toISOString(), data })
     const headers = { 'Content-Type': 'application/json', 'User-Agent': 'Stone-WPP-Gateway/1.0', 'X-Stone-Event': event }
     if (config.secret) headers['X-Stone-Signature'] = 'sha256=' + createHmac('sha256', config.secret).update(body).digest('hex')
@@ -118,7 +118,7 @@ export async function createWebhookService(dataDir, { logger = console, fetchImp
       if (config.url === target && revision === configRevision) logFailure('[stone-gateway] Webhook indisponível; verifique a conexão com o destino.')
     }
   }
-  function emit(event, data) { if (config.url && config.events.includes(event)) void deliver(event, data) }
+  function emit(event, data) { if (config.url && !config.disabledReason && config.events.includes(event)) void deliver(event, data) }
   return { getConfig: publicConfig, setConfig, emit }
 }
 function cryptoRandomId() { return globalThis.crypto?.randomUUID?.() || String(Date.now()) + '-' + Math.random().toString(36).slice(2) }
