@@ -156,3 +156,35 @@ test('operational feed records connection and accepted send without message cont
     assert.equal(payload.includes('5511888888888'),false)
   }finally{await x.cleanup()}
 })
+
+
+test('terminal follows live received text/media and outgoing sends with previews opt-in',async()=>{
+  const x=await setup()
+  try{
+    await x.manager.start('ao-vivo')
+    x.sockets[0].ev.emit('connection.update',{connection:'open'})
+    x.sockets[0].ev.emit('messages.upsert',{
+      type:'notify',
+      messages:[
+        {key:{id:'RX1',remoteJid:'5511888888888@s.whatsapp.net',fromMe:false},message:{conversation:'mensagem privada teste'}},
+        {key:{id:'RX2',remoteJid:'120363123456789@g.us',fromMe:false},message:{imageMessage:{caption:'legenda protegida',jpegThumbnail:Buffer.from('thumbnail-privada')}}}
+      ]
+    })
+    await x.manager.send('ao-vivo','5511888888888@s.whatsapp.net','resposta de teste')
+    const hidden=x.manager.getConsole()
+    assert.equal(JSON.stringify(hidden).includes('mensagem privada teste'),false)
+    assert.equal(JSON.stringify(hidden).includes('legenda protegida'),false)
+    assert.equal(JSON.stringify(hidden).includes('5511888888888'),false)
+    const visible=x.manager.getConsole({includePreview:true})
+    assert.ok(visible.entries.some(x=>x.kind==='texto'&&x.preview==='mensagem privada teste'&&x.direction==='recebida'))
+    assert.ok(visible.entries.some(x=>x.kind==='imagem'&&x.preview==='legenda protegida'))
+    assert.ok(visible.entries.some(x=>x.kind==='texto'&&x.preview==='resposta de teste'&&x.direction==='enviada'))
+    assert.equal(JSON.stringify(visible).includes('thumbnail-privada'),false)
+    assert.equal(JSON.stringify(visible).includes('5511888888888'),false)
+    const previous=visible.cursor
+    x.sockets[0].ev.emit('messages.upsert',{
+      type:'append',messages:[{key:{id:'OLD1',remoteJid:'5511888888888@s.whatsapp.net'},message:{conversation:'mensagem antiga que não deve aparecer'}}]
+    })
+    assert.equal(x.manager.getConsole({since:previous,includePreview:true}).entries.length,0,'ignore history sync')
+  }finally{await x.cleanup()}
+})
