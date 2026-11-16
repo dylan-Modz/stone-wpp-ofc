@@ -87,12 +87,14 @@ export function createConsoleMediaStore({
       throw error('console_media_not_available', 502)
     }
     const permitted = MIME_TYPES[spec.type] || {}
-    const extension = permitted[info.mime] || spec.extension
-    const mime = spec.type === 'document' ? 'application/octet-stream' : (permitted[info.mime] ? info.mime : spec.mime)
+    const unsupported = Boolean(info.mime && !permitted[info.mime] && spec.type !== 'document')
+    const extension = unsupported ? 'bin' : (permitted[info.mime] || spec.extension)
+    const mime = spec.type === 'document' || unsupported
+      ? 'application/octet-stream' : (permitted[info.mime] ? info.mime : spec.mime)
     return {
       bytes: Buffer.concat(chunks, total), mime,
       filename: 'stone-midia.' + extension,
-      inline: spec.type !== 'document'
+      inline: spec.type !== 'document' && !unsupported
     }
   }
   return {register,read}
