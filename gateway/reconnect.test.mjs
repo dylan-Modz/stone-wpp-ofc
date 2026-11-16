@@ -141,3 +141,18 @@ test('pause preserves credentials and restore keeps the session suspended', asyn
     await x.cleanup()
   }
 })
+
+test('operational feed records connection and accepted send without message content or numbers',async()=>{
+  const x=await setup()
+  try{
+    await x.manager.start('evento1')
+    x.sockets[0].ev.emit('connection.update',{connection:'open'})
+    await x.manager.send('evento1','5511888888888@s.whatsapp.net','mensagem privada 123')
+    const events=x.manager.getActivity()
+    assert.ok(events.some(event=>event.event==='open'))
+    assert.ok(events.some(event=>event.event==='sent'))
+    const payload=JSON.stringify(events)
+    assert.equal(payload.includes('mensagem privada 123'),false)
+    assert.equal(payload.includes('5511888888888'),false)
+  }finally{await x.cleanup()}
+})
