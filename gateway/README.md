@@ -35,3 +35,19 @@ Webhooks: `connection.update`, `messages.upsert`, `groups.update`, `call`. Se o 
 - O QR só é exibido para um operador autenticado. Não o compartilhe.
 - API de texto individual apenas. Mensagens em massa, filas persistentes e recursos de IA são integrações futuras.
 - Para produção utilize rate limiting e proxy/firewall apropriados.
+
+## Diagnóstico de pareamento e reconexão
+
+Após a confirmação no WhatsApp, o serviço pode pedir que o socket reinicie (código `515`). O Gateway reinicia somente o socket dessa sessão, preserva a autenticação em memória e aguarda a abertura da conexão. Falhas de rede são tentadas novamente com intervalos crescentes; erros definitivos, como sessão desvinculada (`401`) e conexão substituída (`440`), ficam visíveis como erro e não são repetidos automaticamente. Uma conexão que exceda o limite de tempo deixa de ficar presa em "Conectando".
+
+`GET /v1/sessions` e `GET /v1/sessions/:id` incluem `status`, `lastError`, `disconnectCode`, `reconnectAttempts` e `nextRetryAt`. Os estados possíveis são `connecting`, `waiting_pairing`, `pairing`, `reconnecting`, `open` e `error`. Para tentar novamente uma sessão que parou, envie `POST /v1/sessions` com o mesmo identificador, sem apagar as credenciais.
+
+**Apenas uma instância do Gateway pode usar cada diretório de dados** (por padrão `.stone-gateway`). O processo mantém um lock exclusivo. Não inicie dois `npm run gateway` na mesma pasta em portas diferentes: isso pode causar conflito de sessão. Se o Termux já tiver um Gateway antigo rodando, pare-o com `Ctrl+C` antes de iniciar a versão atualizada. Reinicie sempre com o token original; não compartilhe o token nem o código de pareamento.
+
+Para conferir apenas o estado de uma conexão no mesmo aparelho:
+
+```bash
+curl -sS -H "Authorization: Bearer $(cat ~/.stone-token-teste)" http://127.0.0.1:3018/v1/sessions
+```
+
+A porta `3018` é a usada no teste do Termux; para a porta padrão, ajuste para `3017`. Evite tentar vincular repetidamente a conta enquanto uma reconexão já estiver em andamento.

@@ -288,13 +288,20 @@ export async function createSessionManager({
     if (typeof phoneNumber !== 'string' || !PHONE.test(phoneNumber)) fail('invalid_phone_number')
     if (typeof session.socket.requestPairingCode !== 'function') fail('pairing_not_supported', 409)
     // Allow the low-level websocket to finish its initial handshake.
-    if (typeof session.socket.waitForSocketOpen === 'function') {
-      await Promise.race([
-        session.socket.waitForSocketOpen(),
-        new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('connection_not_ready_for_pairing'), { status: 409 })), 20000))
-      ])
+    const socket = session.socket
+    if (typeof socket.waitForSocketOpen === 'function') {
+      let timer
+      try {
+        await Promise.race([
+          socket.waitForSocketOpen(),
+          new Promise((_, reject) => {
+            timer = setTimeout(() => reject(Object.assign(new Error('connection_not_ready_for_pairing'), { status: 409 })), 20000)
+          })
+        ])
+      } finally { clearTimeout(timer) }
     }
-    const code = await session.socket.requestPairingCode(phoneNumber)
+    if (session.socket !== socket) fail('session_reconnecting_try_again', 409)
+    const code = await socket.requestPairingCode(phoneNumber)
     if (typeof code !== 'string' || !code) fail('pairing_code_unavailable', 502)
     session.pairingCode = code
     return { id, code }
