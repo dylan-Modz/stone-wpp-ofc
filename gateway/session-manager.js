@@ -3,6 +3,7 @@ import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '../lib/index.js'
 import { createWebhookService } from './webhooks.js'
+import { createConsoleFeed, describeConsoleMessage } from './console-feed.js'
 
 const ID = /^[a-zA-Z0-9_-]{1,40}$/
 const PHONE = /^\d{10,15}$/
@@ -73,6 +74,15 @@ export async function createSessionManager({
   const sessions = new Map()
   const maxSessions = 10
   const activity = []
+  const consoleFeed = createConsoleFeed()
+  const recentMessageKeys = new Set()
+  function seenMessage(key) {
+    if (!key) return false
+    if (recentMessageKeys.has(key)) return true
+    recentMessageKeys.add(key)
+    if (recentMessageKeys.size > 250) recentMessageKeys.delete(recentMessageKeys.values().next().value)
+    return false
+  }
   function track(session, event, detail) {
     // In-memory operational metadata only. Never retain message bodies,
     // recipient numbers, tokens or pairing codes in the activity feed.
@@ -81,6 +91,9 @@ export async function createSessionManager({
       timestamp: new Date().toISOString()
     })
     if (activity.length > 50) activity.length = 50
+    if (event !== 'received' && event !== 'sent') {
+      consoleFeed.add({sessionId: session.id, direction:'sistema', kind:event, detail})
+    }
   }
   let webhooks
   try {
@@ -232,6 +245,24 @@ export async function createSessionManager({
     socket.ev.on('messages.upsert', update => {
       if (session.socket !== socket) return
       const messages = (update.messages || []).slice(0, 20)
+      // Show only fresh notifications in the terminal: history sync/append
+      // can replay months of conversations on startup.
+      if (update.type !== 'append') {
+        for (const message of messages) {
+          if (!message?.message) continue
+          const uniqueKey = message.key?.id
+            ? session.id + ':' + message.key.id + ':' + String(message.key.remoteJid || '')
+            : null
+          if (seenMessage(uniqueKey)) continue
+          const description = describeConsoleMessage(message)
+          consoleFeed.add({
+            sessionId:session.id,
+            direction:message.key?.fromMe ? 'enviada' : 'recebida',
+            kind:description.kind, peer:description.peer, preview:description.preview,
+            detail:description.media ? 'Mídia recebida/enviada (sem download).' : ''
+          })
+        }
+      }
       const incoming = (update.messages || []).filter(m => !m.key?.fromMe).length
       session.received += incoming
       if (incoming) track(session, 'received', incoming + ' mensagem(ns) recebida(s).')
@@ -385,6 +416,11 @@ export async function createSessionManager({
     if (!result?.key?.id) fail('send_not_confirmed', 502)
     session.sent++
     track(session, 'sent', 'Solicitação de envio aceita pelo WhatsApp.')
+    seenMessage(session.id + ':' + result.key.id + ':' + to)
+    consoleFeed.add({
+      sessionId:id, direction:'enviada', kind:'texto', peer:to.replace(/^(\d{3})\d+(\d{4})@.*/, '$1••••$2'),
+      preview:text, detail:'Envio aceito pelo WhatsApp; entrega não confirmada.'
+    })
     return { id: result.key.id, to, sessionId: id }
   }
   async function restore() {
@@ -433,6 +469,7 @@ export async function createSessionManager({
   return {
     start, pause, get, list, pair, send, restore, shutdown,
     getActivity: () => activity.slice(0, 30),
+    getConsole: query => consoleFeed.read(query),
     getWebhook: () => webhooks.getConfig(), setWebhook: value => webhooks.setConfig(value)
   }
 }

@@ -48,6 +48,16 @@ export function createGatewayHttpServer({ manager, token, origins = [] } = {}) {
     try {
       if (p === '/v1/health' && req.method === 'GET') return respond(res, 200, { ok: true, service: 'stone-gateway', uptime: Math.floor(process.uptime()) })
       if (p === '/v1/activity' && req.method === 'GET') return respond(res, 200, { events: manager.getActivity() })
+      if (p === '/v1/console' && req.method === 'GET') {
+        const url = new URL(req.url, 'http://localhost')
+        const cursor = url.searchParams.get('since') || '0'
+        if (!/^(0|[1-9]\d{0,14})$/.test(cursor) || !Number.isSafeInteger(Number(cursor))) {
+          return respond(res, 400, {error:'invalid_console_cursor'})
+        }
+        return respond(res, 200, manager.getConsole({
+          since:Number(cursor), includePreview:url.searchParams.get('preview') === '1'
+        }))
+      }
       if (p === '/v1/sessions') {
         if (req.method === 'GET') return respond(res, 200, { sessions: manager.list() })
         if (req.method === 'POST') return respond(res, 201, await manager.start((await readJSON(req)).id))

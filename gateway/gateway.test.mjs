@@ -3,6 +3,11 @@ import assert from 'node:assert/strict'
 import { createGatewayHttpServer } from './server.js'
 const token = 'test-only-super-long-strong-token-123'
 const manager = {
+  getConsole: ({ since, includePreview }) => ({
+    entries:[{seq:1,sessionId:'alpha',direction:'recebida',kind:'texto',
+      ...(includePreview ? {preview:'conteúdo privado'} : {})}],
+    cursor:1,retentionMinutes:15
+  }),
   list: () => [{id:'alpha',status:'open',received:3,sent:1}],
   start: async id => ({id,status:'connecting'}),
   pause: async id => ({ id, status: 'paused' }),
@@ -70,3 +75,19 @@ test('authenticated activity endpoint exposes operational metadata',async()=>{
     assert.equal(body.events[0].sessionId,'alpha')
   })
 })
+
+
+test('terminal API requires Bearer token and hides previews unless explicitly requested',async()=>{
+  await withServer(async base=>{
+    const path='/v1/console?since=0';
+    assert.equal((await fetch(base+path)).status,401);
+    const headers={Authorization:'Bearer '+token};
+    const plain=await (await fetch(base+path,{headers})).json();
+    assert.equal(plain.entries[0].preview,undefined);
+    const details=await (await fetch(base+path+'&preview=1',{headers})).json();
+    assert.equal(details.entries[0].preview,'conteúdo privado');
+    assert.equal(details.cursor,1);
+    assert.equal((await fetch(base+'/v1/console?since=-1',{headers})).status,400);
+    assert.equal((await fetch(base+'/v1/console?since=abc',{headers})).status,400);
+  });
+});
