@@ -47,6 +47,7 @@ export function createGatewayHttpServer({ manager, token, origins = [] } = {}) {
     catch { return respond(res, 400, { error: 'bad_url' }) }
     try {
       if (p === '/v1/health' && req.method === 'GET') return respond(res, 200, { ok: true, service: 'stone-gateway', uptime: Math.floor(process.uptime()) })
+      if (p === '/v1/activity' && req.method === 'GET') return respond(res, 200, { events: manager.getActivity() })
       if (p === '/v1/sessions') {
         if (req.method === 'GET') return respond(res, 200, { sessions: manager.list() })
         if (req.method === 'POST') return respond(res, 201, await manager.start((await readJSON(req)).id))

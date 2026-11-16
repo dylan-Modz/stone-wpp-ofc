@@ -72,6 +72,16 @@ export async function createSessionManager({
   let stopped = false
   const sessions = new Map()
   const maxSessions = 10
+  const activity = []
+  function track(session, event, detail) {
+    // In-memory operational metadata only. Never retain message bodies,
+    // recipient numbers, tokens or pairing codes in the activity feed.
+    activity.unshift({
+      id: randomUUID(), sessionId: session.id, event, detail,
+      timestamp: new Date().toISOString()
+    })
+    if (activity.length > 50) activity.length = 50
+  }
   let webhooks
   try {
     await fs.mkdir(path.join(dataDir, 'sessions'), { recursive: true, mode: 0o700 })
@@ -130,6 +140,7 @@ export async function createSessionManager({
     session.lastError = reason || reasonText(code)
     if (PERMANENT.has(code)) {
       record(session, 'error')
+      track(session, 'error', session.lastError)
       if (code === DisconnectReason.loggedOut) {
         // Credentials were rejected: don't auto-restore them on every reboot.
         // Preserve all files for diagnosis or manual re-pairing.
@@ -151,6 +162,7 @@ export async function createSessionManager({
     const delay = Math.max(1, Number(reconnectDelayMs(session.reconnectAttempts, code)) || 600)
     session.nextRetryAt = new Date(Date.now() + delay).toISOString()
     record(session, 'reconnecting')
+    track(session, 'reconnecting', 'Nova tentativa de conexão agendada.')
     logger.warn?.('[stone-gateway] Reconexão agendada para ' + session.id + ' (' + serial(code || 'sem código') + ', tentativa ' + session.reconnectAttempts + ')')
     notify(session, 'reconnecting')
     session.retryTimer = setTimeout(async () => {
@@ -202,6 +214,7 @@ export async function createSessionManager({
           if (error.code !== 'ENOENT') logger.warn?.('[stone-gateway] Não foi possível limpar marca da sessão ' + session.id)
         })
         record(session, 'open')
+        track(session, 'open', 'Conta conectada ao WhatsApp.')
       } else if (update.connection === 'close') {
         if (session.connectTimer) clearTimeout(session.connectTimer)
         session.connectTimer = null
@@ -219,7 +232,9 @@ export async function createSessionManager({
     socket.ev.on('messages.upsert', update => {
       if (session.socket !== socket) return
       const messages = (update.messages || []).slice(0, 20)
-      session.received += (update.messages || []).filter(m => !m.key?.fromMe).length
+      const incoming = (update.messages || []).filter(m => !m.key?.fromMe).length
+      session.received += incoming
+      if (incoming) track(session, 'received', incoming + ' mensagem(ns) recebida(s).')
       webhooks.emit('messages.upsert', {
         sessionId: session.id, type: update.type,
         messages: messages.map(m => ({
@@ -266,6 +281,7 @@ export async function createSessionManager({
     }
     try { await oldSocket?.end?.(new Error('Stone Gateway session paused')) }
     catch { /* Socket may already have closed */ }
+    track(session, 'paused', 'Conta pausada sem apagar as credenciais.')
     notify(session, 'paused')
     return summary(session)
   }
@@ -363,6 +379,7 @@ export async function createSessionManager({
     const result = await session.socket.sendMessage(to, { text })
     if (!result?.key?.id) fail('send_not_confirmed', 502)
     session.sent++
+    track(session, 'sent', 'Solicitação de envio aceita pelo WhatsApp.')
     return { id: result.key.id, to, sessionId: id }
   }
   async function restore() {
@@ -410,6 +427,7 @@ export async function createSessionManager({
   }
   return {
     start, pause, get, list, pair, send, restore, shutdown,
+    getActivity: () => activity.slice(0, 30),
     getWebhook: () => webhooks.getConfig(), setWebhook: value => webhooks.setConfig(value)
   }
 }

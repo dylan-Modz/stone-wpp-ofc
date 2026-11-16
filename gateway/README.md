@@ -70,3 +70,8 @@ Quando uma sessão recebe `401` (desvinculada), o Gateway mantém os arquivos de
 Os estados retornados pela API incluem `paused`; sessões pausadas permanecem listadas após um reinício do Gateway. Para interromper a exposição temporária do Gateway em testes, encerre o Cloudflare Tunnel separadamente; **pausar uma conta não interrompe a API**.
 
 Não existe exclusão definitiva de credenciais pelo painel nesta versão. Para prevenir apagamentos acidentais, o comando de pausa preserva todos os arquivos da conta.
+
+
+## Eventos recentes do painel (somente em memória)
+
+`GET /v1/activity` — retorna até 30 eventos operacionais recentes, como `open`, `error`, `reconnecting`, `paused`, `sent` e `received`, exigindo o mesmo token Bearer da API. O Gateway mantém no máximo 50 eventos em memória, descartados ao reiniciar. **Não armazena o texto das mensagens, o destino, os códigos de pareamento ou o token no feed.** Os contadores continuam sendo calculados apenas desde o início do processo.
