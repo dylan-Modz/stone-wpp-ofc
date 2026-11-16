@@ -79,3 +79,49 @@ test('403 also disables a rejected webhook',async()=>{
     assert.match(service.getConfig().disabledReason,/403/)
   }finally{await rm(dir,{recursive:true,force:true})}
 })
+
+
+test('valid webhook destination, events and HMAC persist and survive restart',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'stone-webhook-save-'))
+  try{
+    const service=await createWebhookService(dir,{logger:{warn(){}}})
+    const expected='https://hooks.example.com/events'
+    const saved=await service.setConfig({
+      url:expected,secret:'some-secure-signature-secret',
+      events:['messages.upsert','call']
+    })
+    assert.equal(saved.url,expected)
+    assert.equal(saved.signed,true)
+    assert.deepEqual(saved.events,['messages.upsert','call'])
+    const second=await createWebhookService(dir,{logger:{warn(){}}})
+    assert.equal(second.getConfig().url,expected,'configuration must survive restart')
+    assert.equal(second.getConfig().signed,true)
+    assert.deepEqual(second.getConfig().events,['messages.upsert','call'])
+    assert.equal(second.getConfig().secret,undefined)
+  }finally{await rm(dir,{recursive:true,force:true})}
+})
+
+test('stale 401 from earlier delivery never disables newly saved same-URL webhook',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'stone-webhook-old401-'))
+  let release
+  let seen
+  const started=new Promise(resolve=>{seen=resolve})
+  const response=new Promise(resolve=>{release=resolve})
+  try{
+    const service=await createWebhookService(dir,{logger:{warn(){}},
+      fetchImpl:async()=>{seen();await response;return {status:401,ok:false}}
+    })
+    const url='https://receptor.example.com/webhook'
+    await service.setConfig({url,secret:'old-sig-secret-1234'})
+    service.emit('messages.upsert',{message:'old'})
+    await started
+    await service.setConfig({url,secret:'new-sig-secret-1234'})
+    release()
+    for(let i=0;i<30;i++)await Promise.resolve()
+    assert.equal(service.getConfig().url,url)
+    assert.equal(service.getConfig().disabledReason,null)
+    const restored=await createWebhookService(dir,{logger:{warn(){}}})
+    assert.equal(restored.getConfig().url,url)
+    assert.equal(restored.getConfig().disabledReason,null)
+  }finally{await rm(dir,{recursive:true,force:true})}
+})
