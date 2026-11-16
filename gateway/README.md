@@ -80,7 +80,7 @@ Não existe exclusão definitiva de credenciais pelo painel nesta versão. Para 
 
 O Gateway fornece `GET /v1/console?since=0` (exige token Bearer). A resposta contém `entries`, `cursor` e `retentionMinutes`; chamadas posteriores usam `since=<cursor>` para receber somente as novas linhas. Cada entrada inclui direção (`recebida`, `enviada`, `sistema`), tipo (`texto`, `imagem`, `vídeo`, `áudio`, `figurinha`, `documento` etc.), sessão, horário e identificador de conversa **mascarado**.
 
-**Privacidade:** prévias de texto e legendas **não são enviadas por padrão**. Somente o pedido explícito `GET /v1/console?since=0&preview=1` inclui `preview` (até 220 caracteres). No painel, a pessoa precisa ativar **Mostrar prévias de mensagens**. O Gateway armazena texto recente **somente em RAM**, até 80 linhas por até 15 minutos: use com token privado, HTTPS e dispositivo de confiança. As entradas não são persistidas e somem ao reiniciar. Não são baixadas imagens, vídeos, áudios ou anexos; somente o tipo de mídia é identificado.
+**Privacidade:** prévias de texto e legendas **não são enviadas por padrão**. Somente o pedido explícito `GET /v1/console?since=0&preview=1` inclui `preview` (até 4.096 caracteres). No painel, a pessoa precisa ativar **Mostrar prévias de mensagens**. O Gateway armazena texto recente **somente em RAM**, até 80 linhas por até 15 minutos: use com token privado, HTTPS e dispositivo de confiança. As entradas não são persistidas e somem ao reiniciar. Nenhuma mídia é baixada automaticamente. Apenas mídias normais, recentes e compatíveis podem ser abertas sob demanda em uma rota autenticada.
 
 O terminal recebe mensagens novas via `messages.upsert` e confirmações de envio pela API; ignora a sincronização de histórico (`type: append`) para evitar flood de conversas antigas. Um envio aceito pelo socket não significa entrega ou leitura. O painel consulta eventos a cada 2,5 segundos enquanto está aberto.
 
@@ -91,8 +91,17 @@ Se a interface for atualizada antes do Gateway, ela usa o endpoint legado `/v1/a
 
 O terminal exibe **nome do contato** (quando recebido em `pushName` ou nos eventos de contatos), o número em formato mascarado e, em linhas separadas, a **direção**, o **tipo** e o **conteúdo textual** da mensagem. Um identificador WhatsApp `@lid` não é número de telefone e nunca é exibido como se fosse. Quando o evento fornecer `remoteJidAlt` / `participantAlt` com identificador telefônico, ele é usado para resolver o número. Se não houver nome nem PN disponível, o painel indica apenas `Contato` ou `Participante do grupo`, sem inventar informações.
 
-O conteúdo de texto ou a legenda de imagem/vídeo (até 4096 caracteres) e o **número completo** só são retornados após ativar a opção de prévias no painel. O tipo de áudio, figurinha, vídeo e outras mídias aparece mesmo sem prévia, mas nenhum arquivo é baixado.
+O conteúdo de texto ou a legenda de imagem/vídeo (até 4096 caracteres) e o **número completo** só são retornados após ativar a opção de prévias no painel. O tipo de áudio, figurinha, vídeo e outras mídias aparece mesmo sem prévia. O arquivo só é baixado se o usuário clicar explicitamente em **Ver / baixar mídia**.
 
 ## Webhooks inválidos e avisos HTTP 401/403
 
 Se o destinatário do webhook responder `401` ou `403`, o Gateway **desativa automaticamente esse webhook**, salva essa decisão em `.stone-gateway/gateway-webhook.json` e mostra **um aviso** no Termux. O motivo pode ser visto na configuração `GET /v1/webhook` pelo campo `disabledReason`. Outros erros de conexão são exibidos no máximo uma vez por minuto para evitar flood de logs. Para reativar, configure uma URL HTTPS **do sistema receptor de verdade**, não a própria URL pública do Gateway, e ajuste a autenticação do receptor.
+
+
+## Prévia e download de mídia do terminal (opcional)
+
+O terminal exibe **IMAGEM**, **VÍDEO**, **GIF**, **ÁUDIO**, **VOZ**, **FIGURINHA** ou **DOCUMENTO** sem carregar o arquivo. Quando o painel estiver conectado e a pessoa ativar a opção de prévias, mídias recentes compatíveis apresentam o botão **Ver / baixar mídia**. O botão faz uma única solicitação autenticada em `GET /v1/console/media/:seq` (o `:seq` vem de `GET /v1/console`). O Gateway só então decripta a mídia que a Stone recebeu do WhatsApp e retorna os bytes no formato seguro correspondente. Fotos abrem em uma janela, vídeos e áudios usam controles nativos e documentos são oferecidos para download.
+
+Por segurança: apenas arquivos de **até 20 MB**, até **15 minutos após a mensagem** (e enquanto a referência continuar em memória), são elegíveis. Nenhum arquivo é salvo no disco pelo Gateway ou no histórico do painel; a janela libera a URL temporária ao fechar. Nunca disponibilizamos mídias de **visualização única**, mensagens efêmeras embrulhadas ou históricos antigos por esse caminho. Destinos, tokens, URLs da mídia e chaves de decriptação não são incluídos nos eventos retornados ao navegador. A API exige o mesmo token Bearer das demais rotas e retorna `Cache-Control: no-store`.
+
+Se a mídia já tiver expirado, não tiver mais disponibilidade no WhatsApp ou exceder o limite, o painel mostra um aviso, mantendo o tipo de conteúdo no terminal. O botão não significa que a mídia foi armazenada ou que sempre pode ser recuperada.
