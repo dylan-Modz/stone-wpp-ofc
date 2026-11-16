@@ -58,6 +58,23 @@ export function createGatewayHttpServer({ manager, token, origins = [] } = {}) {
           since:Number(cursor), includePreview:url.searchParams.get('preview') === '1'
         }))
       }
+      const mediaMatch = p.match(/^\/v1\/console\/media\/([1-9]\d{0,14})$/)
+      if (mediaMatch && req.method === 'GET') {
+        const seq = Number(mediaMatch[1])
+        if (!Number.isSafeInteger(seq)) return respond(res, 400, {error:'invalid_media_id'})
+        const media = await manager.getConsoleMedia(seq)
+        res.writeHead(200, {
+          'Content-Type': media.mime,
+          'Content-Length': media.bytes.length,
+          'Content-Disposition': (media.inline ? 'inline' : 'attachment') + '; filename="' + media.filename + '"',
+          'Cache-Control': 'no-store, private',
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Security-Policy': 'sandbox',
+          'Referrer-Policy': 'no-referrer'
+        })
+        res.end(media.bytes)
+        return
+      }
       if (p === '/v1/sessions') {
         if (req.method === 'GET') return respond(res, 200, { sessions: manager.list() })
         if (req.method === 'POST') return respond(res, 201, await manager.start((await readJSON(req)).id))
