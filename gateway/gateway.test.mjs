@@ -5,6 +5,8 @@ const token = 'test-only-super-long-strong-token-123'
 const manager = {
   list: () => [{id:'alpha',status:'open',received:3,sent:1}],
   start: async id => ({id,status:'connecting'}),
+  pause: async id => ({ id, status: 'paused' }),
+  getActivity: () => [{id:'e1',sessionId:'alpha',event:'sent',detail:'Solicitação aceita.',timestamp:'2026-11-16T18:00:00Z'}],
   get: async id => ({id,status:'connecting',qrImage:null}),
   pair: async (id,number) => ({id,code:'1234-5678',number}),
   send: async (id,to,text) => ({id:'message-1',sessionId:id,to,text}),
@@ -44,5 +46,27 @@ test('supports session, pairing and single text operations',async()=>{
     const sent=await (await request('/v1/sessions/alpha/messages',{to:'5511999999999@s.whatsapp.net',text:'oi'})).json()
     assert.equal(sent.sessionId,'alpha')
     assert.equal((await fetch(base+'/v1/sessions/alpha',{headers})).status,200)
+  })
+})
+
+test('pause endpoint is authenticated and returns the paused session', async()=>{
+  await withServer(async base=>{
+    assert.equal((await fetch(base+'/v1/sessions/alpha/pause',{method:'POST'})).status,401)
+    const res=await fetch(base+'/v1/sessions/alpha/pause',{
+      method:'POST',headers:{Authorization:'Bearer '+token}
+    })
+    assert.equal(res.status,200)
+    assert.equal((await res.json()).status,'paused')
+  })
+})
+
+test('authenticated activity endpoint exposes operational metadata',async()=>{
+  await withServer(async base=>{
+    assert.equal((await fetch(base+'/v1/activity')).status,401)
+    const res=await fetch(base+'/v1/activity',{headers:{Authorization:'Bearer '+token}})
+    assert.equal(res.status,200)
+    const body=await res.json()
+    assert.equal(body.events[0].event,'sent')
+    assert.equal(body.events[0].sessionId,'alpha')
   })
 })

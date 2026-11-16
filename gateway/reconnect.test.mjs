@@ -113,3 +113,46 @@ test('two Gateway instances cannot share the same persistent credentials folder'
   })
   await reopened.shutdown()
 })
+
+test('pause preserves credentials and restore keeps the session suspended', async () => {
+  const x = await setup()
+  let restored
+  try {
+    await x.manager.start('conta-pausada')
+    const dir = path.join(x.dir, 'sessions', 'conta-pausada')
+    await (await import('node:fs/promises')).writeFile(path.join(dir, 'creds.json'), '{"saved":true}')
+    const result = await x.manager.pause('conta-pausada')
+    assert.equal(result.status, 'paused')
+    assert.equal(x.manager.list()[0].status, 'paused')
+    await x.manager.shutdown()
+    restored = await createSessionManager({
+      dataDir:x.dir,logger:{warn(){}},socketFactory:({auth})=>({auth,ev:new EventEmitter(),end:async()=>{},user:{id:'5511888888888@s.whatsapp.net'}}),
+      authFactory:async()=>({state:{creds:{account:true,me:{id:'5511888888888@s.whatsapp.net'}}},saveCreds:async()=>{}}),
+      connectionTimeoutMs:500
+    })
+    await restored.restore()
+    assert.equal(restored.list()[0].status,'paused')
+    assert.equal(restored.list()[0].user,'5511888888888@s.whatsapp.net')
+    assert.equal((await (await import('node:fs/promises')).readFile(path.join(dir,'creds.json'),'utf8')),'{"saved":true}')
+    const stopAgain=await restored.pause('conta-pausada')
+    assert.equal(stopAgain.status,'paused')
+  } finally {
+    await restored?.shutdown()
+    await x.cleanup()
+  }
+})
+
+test('operational feed records connection and accepted send without message content or numbers',async()=>{
+  const x=await setup()
+  try{
+    await x.manager.start('evento1')
+    x.sockets[0].ev.emit('connection.update',{connection:'open'})
+    await x.manager.send('evento1','5511888888888@s.whatsapp.net','mensagem privada 123')
+    const events=x.manager.getActivity()
+    assert.ok(events.some(event=>event.event==='open'))
+    assert.ok(events.some(event=>event.event==='sent'))
+    const payload=JSON.stringify(events)
+    assert.equal(payload.includes('mensagem privada 123'),false)
+    assert.equal(payload.includes('5511888888888'),false)
+  }finally{await x.cleanup()}
+})

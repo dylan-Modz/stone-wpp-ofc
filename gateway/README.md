@@ -60,3 +60,18 @@ O modo padrão do Gateway é **warn**: elimina a enxurrada de mensagens informat
 Para consultar os logs detalhados quando estiver diagnosticando um problema, use `STONE_GATEWAY_LOG_LEVEL=info` ou `STONE_GATEWAY_LOG_LEVEL=debug` ao executar `npm run gateway`. Evite compartilhar logs brutos: o protocolo pode incluir identificadores e metadados.
 
 Quando uma sessão recebe `401` (desvinculada), o Gateway mantém os arquivos de credenciais, mas registra um marcador local `.stone-relink-required.json` na pasta daquela sessão para **não insistir na restauração inválida nos próximos reinícios**. O marcador não altera `creds.json`. É possível tentar iniciar a sessão manualmente pelo endpoint `POST /v1/sessions`; se a autenticação não for mais válida, crie uma nova sessão e faça novo pareamento. Sessões saudáveis são restauradas normalmente.
+
+
+## Controles de sessão pelo painel
+
+- `POST /v1/sessions/:id/pause` — **pausa a sessão** e encerra somente seu socket. Não chama `logout`, não apaga `creds.json`, não desconecta a conta permanentemente do WhatsApp. A pausa é registrada localmente e preservada após reiniciar o Gateway.
+- `POST /v1/sessions` com `{"id":"identificador-existente"}` — **retoma a sessão pausada** ou repete a tentativa de uma sessão com erro. A autenticação salva é reutilizada, sem novo código caso permaneça válida.
+
+Os estados retornados pela API incluem `paused`; sessões pausadas permanecem listadas após um reinício do Gateway. Para interromper a exposição temporária do Gateway em testes, encerre o Cloudflare Tunnel separadamente; **pausar uma conta não interrompe a API**.
+
+Não existe exclusão definitiva de credenciais pelo painel nesta versão. Para prevenir apagamentos acidentais, o comando de pausa preserva todos os arquivos da conta.
+
+
+## Eventos recentes do painel (somente em memória)
+
+`GET /v1/activity` — retorna até 30 eventos operacionais recentes, como `open`, `error`, `reconnecting`, `paused`, `sent` e `received`, exigindo o mesmo token Bearer da API. O Gateway mantém no máximo 50 eventos em memória, descartados ao reiniciar. **Não armazena o texto das mensagens, o destino, os códigos de pareamento ou o token no feed.** Os contadores continuam sendo calculados apenas desde o início do processo.
