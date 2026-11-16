@@ -76,7 +76,7 @@ test('403 also disables a rejected webhook',async()=>{
     })
     await service.setConfig({url:'https://receiver.example.com/events'})
     service.emit('call',{id:'x'})
-    for(let i=0;i<60 && service.getConfig().url;i++)await new Promise(resolve=>setTimeout(resolve,5))
+    for(let i=0;i<60 && !service.getConfig().disabledReason;i++)await new Promise(resolve=>setTimeout(resolve,5))
     assert.equal(service.getConfig().url,'https://receiver.example.com/events')
     assert.equal(service.getConfig().enabled,false)
     assert.match(service.getConfig().disabledReason,/403/)
