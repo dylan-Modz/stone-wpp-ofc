@@ -95,7 +95,7 @@ O conteúdo de texto ou a legenda de imagem/vídeo (até 4096 caracteres) e o **
 
 ## Webhooks inválidos e avisos HTTP 401/403
 
-Se o destinatário do webhook responder `401` ou `403`, o Gateway **desativa automaticamente esse webhook**, salva essa decisão em `.stone-gateway/gateway-webhook.json` e mostra **um aviso** no Termux. O motivo pode ser visto na configuração `GET /v1/webhook` pelo campo `disabledReason`. Outros erros de conexão são exibidos no máximo uma vez por minuto para evitar flood de logs. Para reativar, configure uma URL HTTPS **do sistema receptor de verdade**, não a própria URL pública do Gateway, e ajuste a autenticação do receptor.
+Se o destinatário do webhook responder `401` ou `403`, o Gateway **suspende automaticamente as entregas**, mas **mantém URL, eventos e chave HMAC salvos** em `.stone-gateway/gateway-webhook.json`. O estado passa a `enabled: false` e `disabledReason` explica o erro. O Termux mostra apenas um aviso. Corrija o endpoint receptor e salve a configuração novamente para reativar as entregas. O motivo pode ser visto na configuração `GET /v1/webhook` pelo campo `disabledReason`. Outros erros de conexão são exibidos no máximo uma vez por minuto para evitar flood de logs. Para reativar, configure uma URL HTTPS **do sistema receptor de verdade**, não a própria URL pública do Gateway, e ajuste a autenticação do receptor.
 
 
 ## Prévia e download de mídia do terminal (opcional)
@@ -105,3 +105,10 @@ O terminal exibe **IMAGEM**, **VÍDEO**, **GIF**, **ÁUDIO**, **VOZ**, **FIGURIN
 Por segurança: apenas arquivos de **até 20 MB**, até **15 minutos após a mensagem** (e enquanto a referência continuar em memória), são elegíveis. Nenhum arquivo é salvo no disco pelo Gateway ou no histórico do painel; a janela libera a URL temporária ao fechar. Nunca disponibilizamos mídias de **visualização única**, mensagens efêmeras embrulhadas ou históricos antigos por esse caminho. Destinos, tokens, URLs da mídia e chaves de decriptação não são incluídos nos eventos retornados ao navegador. A API exige o mesmo token Bearer das demais rotas e retorna `Cache-Control: no-store`.
 
 Se a mídia já tiver expirado, não tiver mais disponibilidade no WhatsApp ou exceder o limite, o painel mostra um aviso, mantendo o tipo de conteúdo no terminal. O botão não significa que a mídia foi armazenada ou que sempre pode ser recuperada.
+
+
+### Salvamento de webhook e confirmação
+
+O botão **Salvar alterações** do Stone Studio usa `PUT /v1/webhook` e faz `GET /v1/webhook` em seguida para confirmar que URL, eventos e assinatura foram realmente gravados. O destino deve ser um **endpoint HTTPS receptor** separado do próprio endereço do Gateway. A chave configurada como HMAC gera o cabeçalho `X-Stone-Signature`; **ela não fornece automaticamente um cabeçalho Authorization ou Bearer** ao sistema de destino. Se esse sistema exigir outra autenticação, configure o receptor para validar a assinatura ou prover um endpoint compatível.
+
+O Gateway registra os webhooks no disco e serializa as gravações, impedindo que um erro `401` atrasado sobrescreva uma configuração recém-salva. Se o receptor rejeitar uma notificação, a URL permanece salva, mas o envio é suspenso até um novo salvamento; isso evita tentativas em loop e perda de campos. O painel consulta periodicamente o estado e mostra o problema no próprio formulário.
