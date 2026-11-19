@@ -40,7 +40,8 @@
     "release:check": "npm test && npm pack --dry-run",
     "gateway": "node gateway/index.js",
     "test:gateway": "node --test gateway/*.test.mjs",
-    "test:unavailable": "node --test lib/Utils/stone-unavailable-media.test.mjs"
+    "test:unavailable": "node --test lib/Utils/stone-unavailable-media.test.mjs",
+    "test:mobile-receiver": "node --test lib/Socket/stone-mobile-receiver.test.mjs"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",
@@ -56,7 +57,7 @@
     "protobufjs": "^7.5.6",
     "whatsapp-rust-bridge": "0.5.4",
     "ws": "^8.13.0",
-    "zapo-js": "^1.0.0",
+    "zapo-js": "^1.11.0",
     "qrcode": "^1.5.4"
   },
   "peerDependencies": {
@@ -122,6 +123,7 @@
   },
   "optionalDependencies": {
     "@roamhq/wrtc": "^0.10.0",
-    "ffmpeg-static": "^5.2.0"
+    "ffmpeg-static": "^5.2.0",
+    "@zapo-js/store-sqlite": "^1.3.0"
   }
 }
