@@ -39,7 +39,8 @@
     "prepublishOnly": "npm test",
     "release:check": "npm test && npm pack --dry-run",
     "gateway": "node gateway/index.js",
-    "test:gateway": "node --test gateway/*.test.mjs"
+    "test:gateway": "node --test gateway/*.test.mjs",
+    "test:unavailable": "node --test lib/Utils/stone-unavailable-media.test.mjs"
   },
   "dependencies": {
     "@cacheable/node-cache": "^1.4.0",
